@@ -4,44 +4,44 @@ Cohort is a multi-service platform for scheduling, coordination, and workflow-dr
 
 The repository is structured as a monorepo and includes a Kubernetes deployment layout, Docker-based local orchestration, and observability tooling for metrics and logs.
 
-![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=for-the-badge)
-![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white&style=for-the-badge)
-![Elastic](https://img.shields.io/badge/Elastic-005571?logo=elastic&logoColor=white&style=for-the-badge)
-![Temporal](https://img.shields.io/badge/Temporal-000000?logo=temporal&logoColor=white&style=for-the-badge)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
-
 ## Architecture Overview
 
 ```mermaid
 flowchart TB
-    User[User / Browser] --> Ingress[Ingress<br/>cohort.local]
+    classDef app fill:#E8F1FF,stroke:#1D4ED8,stroke-width:2px,color:#111827;
+    classDef infra fill:#EAFBF3,stroke:#0F766E,stroke-width:2px,color:#111827;
+    classDef telemetry fill:#FFF7ED,stroke:#C2410C,stroke-width:2px,color:#111827;
+    classDef autoscale fill:#F5E8FF,stroke:#7C3AED,stroke-width:3px,color:#111827;
+    classDef db fill:#FEE2E2,stroke:#DC2626,stroke-width:2px,color:#111827;
+    classDef user fill:#F3F4F6,stroke:#374151,stroke-width:2px,color:#111827;
+
+    User[User / Browser]:::user --> Ingress[Ingress<br/>cohort.local]:::infra
 
     subgraph Cluster["Kubernetes + Docker Runtime"]
-        Ingress --> Web[web<br/>React Frontend]
+        Ingress --> Web[web<br/>React Frontend]:::app
 
-        Web --> Domain[domain-hub<br/>GraphQL API]
-        Domain --> Booking[booking-hub]
-        Domain --> Notification[notification-hub]
-        Domain --> Search[search-hub]
-        Domain --> Auth[auth-hub]
-        Domain --> Video[video-hub]
-        Domain --> Config[config-hub]
+        Web --> Domain[domain-hub<br/>GraphQL API]:::app
+        Domain --> Booking[booking-hub]:::app
+        Domain --> Notification[notification-hub]:::app
+        Domain --> Search[search-hub]:::app
+        Domain --> Auth[auth-hub]:::app
+        Domain --> Video[video-hub]:::app
+        Domain --> Config[config-hub]:::app
 
-        Domain --> Temporal[Temporal<br/>Workflow Engine]
-        Temporal --> Postgres[(PostgreSQL)]
+        Domain --> Temporal[Temporal<br/>Workflow Engine]:::infra
+        Temporal --> Postgres[(PostgreSQL)]:::db
 
         subgraph Observability["Monitoring & Telemetry"]
-            Prometheus[Prometheus]
-            Grafana[Grafana]
-            Filebeat[Filebeat]
-            Logstash[Logstash]
-            Elasticsearch[(Elasticsearch)]
-            Kibana[Kibana]
+            Prometheus[Prometheus]:::telemetry
+            Grafana[Grafana]:::telemetry
+            Filebeat[Filebeat]:::telemetry
+            Logstash[Logstash]:::telemetry
+            Elasticsearch[(Elasticsearch)]:::telemetry
+            Kibana[Kibana]:::telemetry
         end
 
         subgraph Autoscaling["Autoscaling"]
-            KEDA[KEDA<br/>ScaledObjects]
+            KEDA[KEDA<br/>ScaledObjects]:::autoscale
         end
 
         Web -. metrics .-> Prometheus
