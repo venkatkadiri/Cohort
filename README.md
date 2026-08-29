@@ -1,1 +1,380 @@
 # Cohort
+
+Cohort is a multi-service platform for scheduling, coordination, and workflow-driven operations. It follows a modular architecture where a central domain layer coordinates multiple specialized service hubs, while a frontend app delivers the user-facing experience.
+
+The repository is structured as a monorepo and includes a Kubernetes deployment layout, Docker-based local orchestration, and observability tooling for metrics and logs.
+
+## Architecture Overview
+
+```mermaid
+flowchart LR
+    User[Client / Browser] --> Ingress[Ingress<br/>cohort.local]
+
+    subgraph K8s["Kubernetes Cluster"]
+        Ingress --> Web[web<br/>Deployment + Service]
+
+        Web --> Domain[domain-hub<br/>GraphQL API]
+        Domain --> Booking[booking-hub]
+        Domain --> Notification[notification-hub]
+        Domain --> Search[search-hub]
+        Domain --> Auth[auth-hub]
+        Domain --> Video[video-hub]
+        Domain --> Config[config-hub]
+
+        Domain --> Temporal[Temporal<br/>Workflow Engine]
+        Temporal --> Postgres[(Postgres<br/>State DB)]
+
+        subgraph Telemetry["Telemetry / Observability"]
+            Prometheus[Prometheus<br/>metrics scraping]
+            Grafana[Grafana<br/>dashboards]
+            Logstash[Logstash<br/>log pipeline]
+            Elasticsearch[(Elasticsearch<br/>logs index)]
+            Kibana[Kibana<br/>log visualization]
+            Filebeat[Filebeat<br/>log collection]
+        end
+
+        subgraph AutoScale["Autoscaling Layer"]
+            KEDA[KEDA<br/>ScaledObject / TriggerAuth]
+        end
+
+        Domain -. /metrics .-> Prometheus
+        Booking -. /metrics .-> Prometheus
+        Notification -. /metrics .-> Prometheus
+        Search -. /metrics .-> Prometheus
+        Auth -. /metrics .-> Prometheus
+        Video -. /metrics .-> Prometheus
+        Config -. /metrics .-> Prometheus
+        Web -. /metrics .-> Prometheus
+
+        KEDA -->|reads Prometheus metrics| Prometheus
+        KEDA -->|scales workloads| Web
+        KEDA -->|scales workloads| Domain
+        KEDA -->|scales workloads| Booking
+        KEDA -->|scales workloads| Notification
+        KEDA -->|scales workloads| Search
+        KEDA -->|scales workloads| Auth
+        KEDA -->|scales workloads| Video
+        KEDA -->|scales workloads| Config
+
+        KEDA -->|database-driven scaling| Postgres
+
+        Web --> Filebeat
+        Domain --> Filebeat
+        Booking --> Filebeat
+        Notification --> Filebeat
+        Search --> Filebeat
+        Auth --> Filebeat
+        Video --> Filebeat
+        Config --> Filebeat
+
+        Filebeat --> Logstash
+        Logstash --> Elasticsearch
+        Elasticsearch --> Kibana
+        Prometheus --> Grafana
+    end
+```
+
+## Core Components
+
+### 1. Frontend: web
+
+Location: apps/web
+
+This is the main browser-facing application. It is exposed through the Kubernetes ingress and communicates primarily with the domain hub. The frontend is responsible for user flows, UI rendering, and calling orchestration APIs that trigger downstream services.
+
+Responsibilities:
+
+- UI renders for scheduling and platform interactions
+- API calls to the domain layer
+- User-facing dashboards and management experiences
+- Aggregation of backend service responses
+
+### 2. Domain orchestration layer: domain-hub
+
+Location: apps/domain-hub
+
+This is the central coordination service. It acts as the primary API gateway for the platform and orchestrates calls to the specialized spoke services:
+
+- booking-hub
+- notification-hub
+- search-hub
+- auth-hub
+- video-hub
+- config-hub
+
+It exposes GraphQL and HTTP endpoints and can also communicate with downstream services through gRPC ports. This is the main integration point for the application domain.
+
+Responsibilities:
+
+- Request aggregation and composition
+- Service-to-service orchestration
+- Domain logic and workflow coordination
+- Health checks and platform readiness
+
+### 3. Booking service: booking-hub
+
+Location: apps/booking-hub
+
+Handles booking and scheduling workflows. It exposes its own HTTP and gRPC interface and participates in orchestration via the domain hub and workflow engine.
+
+Responsibilities:
+
+- Booking lifecycle management
+- Scheduling operations
+- Event-driven flows related to appointments or reservations
+
+### 4. Notification service: notification-hub
+
+Location: apps/notification-hub
+
+Responsible for customer and platform notifications, such as email, push, or messaging events triggered by business workflows.
+
+Responsibilities:
+
+- Dispatching notifications
+- Event-driven messaging flows
+- Integration with communication providers or downstream channels
+
+### 5. Search service: search-hub
+
+Location: apps/search-hub
+
+Provides searching and indexing capabilities. It is used by the domain layer for retrieval, discovery, and related query operations.
+
+Responsibilities:
+
+- Search indexing and retrieval
+- Query handling for domain entities
+- Content discovery and lookup operations
+
+### 6. Authentication service: auth-hub
+
+Location: apps/auth-hub
+
+Owns authentication and authorization concerns. It provides secure identity-related operations for the overall platform.
+
+Responsibilities:
+
+- User identity checks
+- Auth flows
+- Access control and session-related operations
+
+### 7. Video service: video-hub
+
+Location: apps/video-hub
+
+Handles video-related capabilities such as media processing, video endpoints, or streaming-specific backend tasks.
+
+Responsibilities:
+
+- Video/media APIs
+- Media platform integration
+- Video workflow support
+
+### 8. Configuration service: configuration-hub
+
+Location: apps/configuration-hub
+
+Provides centralized configuration and platform settings. This service allows the platform to manage runtime configuration in a decoupled way.
+
+Responsibilities:
+
+- System configuration access
+- Feature flags and settings
+- Environment-specific properties
+
+### 9. Workflow engine: Temporal
+
+Configured in k8s/base/temporal.yaml and used via the booking and orchestration layer.
+
+Temporal is used for durable, long-running workflows and background task coordination. It helps manage asynchronous business processes that must be reliable and recoverable.
+
+Responsibilities:
+
+- Workflow orchestration
+- Background task execution
+- Event-driven process reliability
+- Job retry and state tracking
+
+### 10. Autoscaling: KEDA
+
+Configured in k8s/base/keda/
+
+KEDA (Kubernetes Event-Driven Autoscaling) sits on top of the cluster and automatically scales Kubernetes workloads based on Prometheus metrics and database-driven signals. The project defines ScaledObjects and TriggerAuthentication resources to scale the web, domain, booking, notification, search, auth, and video services based on throughput and queue-like conditions.
+
+Responsibilities:
+
+- Auto-scaling based on Prometheus metrics
+- Database-driven scaling for workloads such as booking
+- Dynamic handling of traffic spikes
+- Better cost efficiency and elastic capacity management
+
+### 11. Database: PostgreSQL
+
+Configured in k8s/base/postgres.yaml
+
+PostgreSQL is the persistence layer used by Temporal and other platform services. It stores workflow-related data and app state required by service operations.
+
+Responsibilities:
+
+- Durable data storage
+- Workflow metadata persistence
+- Application state storage
+
+## Observability Stack
+
+The platform includes a dedicated monitoring and telemetry layer to collect metrics, logs, and dashboards.
+
+### Prometheus
+
+Location: k8s/base/observability/prometheus.yaml
+
+Prometheus scrapes metrics from the platform services over /metrics endpoints. It acts as the primary time-series metrics collector.
+
+Responsibilities:
+
+- Service metric collection
+- Alerting and health evaluation
+- Performance monitoring
+
+### Grafana
+
+Location: k8s/base/observability/grafana.yaml
+
+Grafana is used for dashboards and visual monitoring of service health, system metrics, and platform trends.
+
+Responsibilities:
+
+- Metric dashboards
+- Operational observability
+- Visual analysis of service performance
+
+### Filebeat
+
+Configured in monitoring/filebeat/filebeat.yml and used as log collectors in the cluster environment.
+
+Filebeat collects logs from services and forwards them to Logstash for processing.
+
+Responsibilities:
+
+- Log collection from containerized workloads
+- Ship logs to the log pipeline
+
+### Logstash
+
+Location: k8s/base/observability/logstash.yaml
+
+Logstash processes and transforms incoming logs before sending them to Elasticsearch.
+
+Responsibilities:
+
+- Log ingestion
+- Log parsing and enrichment
+- Routing events to storage
+
+### Elasticsearch
+
+Location: k8s/base/observability/elasticsearch.yaml
+
+Elasticsearch stores log data and supports fast querying and indexing for observability workloads.
+
+Responsibilities:
+
+- Log storage
+- Indexing and search
+- Log analytics backend
+
+### Kibana
+
+Location: k8s/base/observability/kibana.yaml
+
+Kibana is the visualization layer for Elasticsearch logs and data.
+
+Responsibilities:
+
+- Log exploration
+- Search and dashboarding
+- Operational debugging
+
+## Kubernetes Deployment Layout
+
+The repo contains Kubernetes manifests under:
+
+- k8s/base
+- k8s/overlays/dev
+- k8s/overlays/stage
+- k8s/overlays/prod
+
+Key base resources include:
+
+- ingress.yaml
+- web-frontend.yaml
+- hub-domain.yaml
+- spoke-auth.yaml
+- spoke-booking.yaml
+- spoke-config.yaml
+- spoke-notification.yaml
+- spoke-search.yaml
+- spoke-video.yaml
+- temporal.yaml
+- postgres.yaml
+- observability/
+
+This setup allows the application to run as a set of Deployments and Services in Kubernetes, with ingress providing the public entry point.
+
+## Repository Structure
+
+- apps/ — application services and frontend modules
+- design-system/ — shared UI component library
+- k8s/ — Kubernetes manifests for base and overlays
+- monitoring/ — observability configuration
+- packages/observability/ — shared observability utilities or code
+- docker/ — Docker build config
+- proto/ — protocol definitions
+- scripts/ — startup and orchestration helpers
+
+## Common Development Commands
+
+From the root of the repo:
+
+```bash
+pnpm install
+pnpm start
+pnpm dev
+pnpm build
+pnpm typecheck
+```
+
+For Kubernetes-related deployment:
+
+```bash
+pnpm k8s:dev
+pnpm k8s:stage
+pnpm k8s:prod
+pnpm k8s:obs
+```
+
+For Docker Compose-based local stack:
+
+```bash
+docker compose up -d
+```
+
+For observability stack:
+
+```bash
+docker compose -f docker-compose.observability.yml up -d
+```
+
+## Summary
+
+Cohort is designed as a modular, service-oriented platform where:
+
+- the web app provides the user interface,
+- the domain hub coordinates business processes,
+- specialized spokes handle core functional domains,
+- Temporal manages workflow execution,
+- PostgreSQL stores platform state,
+- and Prometheus, Grafana, Elasticsearch, Logstash, and Kibana provide full telemetry and observability.
+
+This architecture makes the system extensible, scalable, and operationally observable while keeping responsibilities separated across focused service boundaries.
