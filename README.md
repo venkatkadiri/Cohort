@@ -4,14 +4,21 @@ Cohort is a multi-service platform for scheduling, coordination, and workflow-dr
 
 The repository is structured as a monorepo and includes a Kubernetes deployment layout, Docker-based local orchestration, and observability tooling for metrics and logs.
 
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=for-the-badge)
+![Grafana](https://img.shields.io/badge/Grafana-F46800?logo=grafana&logoColor=white&style=for-the-badge)
+![Elastic](https://img.shields.io/badge/Elastic-005571?logo=elastic&logoColor=white&style=for-the-badge)
+![Temporal](https://img.shields.io/badge/Temporal-000000?logo=temporal&logoColor=white&style=for-the-badge)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
+
 ## Architecture Overview
 
 ```mermaid
-flowchart LR
-    User[Client / Browser] --> Ingress[Ingress<br/>cohort.local]
+flowchart TB
+    User[User / Browser] --> Ingress[Ingress<br/>cohort.local]
 
-    subgraph K8s["Kubernetes Cluster"]
-        Ingress --> Web[web<br/>Deployment + Service]
+    subgraph Cluster["Kubernetes + Docker Runtime"]
+        Ingress --> Web[web<br/>React Frontend]
 
         Web --> Domain[domain-hub<br/>GraphQL API]
         Domain --> Booking[booking-hub]
@@ -22,41 +29,40 @@ flowchart LR
         Domain --> Config[config-hub]
 
         Domain --> Temporal[Temporal<br/>Workflow Engine]
-        Temporal --> Postgres[(Postgres<br/>State DB)]
+        Temporal --> Postgres[(PostgreSQL)]
 
-        subgraph Telemetry["Telemetry / Observability"]
-            Prometheus[Prometheus<br/>metrics scraping]
-            Grafana[Grafana<br/>dashboards]
-            Logstash[Logstash<br/>log pipeline]
-            Elasticsearch[(Elasticsearch<br/>logs index)]
-            Kibana[Kibana<br/>log visualization]
-            Filebeat[Filebeat<br/>log collection]
+        subgraph Observability["Monitoring & Telemetry"]
+            Prometheus[Prometheus]
+            Grafana[Grafana]
+            Filebeat[Filebeat]
+            Logstash[Logstash]
+            Elasticsearch[(Elasticsearch)]
+            Kibana[Kibana]
         end
 
-        subgraph AutoScale["Autoscaling Layer"]
-            KEDA[KEDA<br/>ScaledObject / TriggerAuth]
+        subgraph Autoscaling["Autoscaling"]
+            KEDA[KEDA<br/>ScaledObjects]
         end
 
-        Domain -. /metrics .-> Prometheus
-        Booking -. /metrics .-> Prometheus
-        Notification -. /metrics .-> Prometheus
-        Search -. /metrics .-> Prometheus
-        Auth -. /metrics .-> Prometheus
-        Video -. /metrics .-> Prometheus
-        Config -. /metrics .-> Prometheus
-        Web -. /metrics .-> Prometheus
+        Web -. metrics .-> Prometheus
+        Domain -. metrics .-> Prometheus
+        Booking -. metrics .-> Prometheus
+        Notification -. metrics .-> Prometheus
+        Search -. metrics .-> Prometheus
+        Auth -. metrics .-> Prometheus
+        Video -. metrics .-> Prometheus
+        Config -. metrics .-> Prometheus
 
-        KEDA -->|reads Prometheus metrics| Prometheus
-        KEDA -->|scales workloads| Web
-        KEDA -->|scales workloads| Domain
-        KEDA -->|scales workloads| Booking
-        KEDA -->|scales workloads| Notification
-        KEDA -->|scales workloads| Search
-        KEDA -->|scales workloads| Auth
-        KEDA -->|scales workloads| Video
-        KEDA -->|scales workloads| Config
-
-        KEDA -->|database-driven scaling| Postgres
+        KEDA -->|Prometheus trigger| Prometheus
+        KEDA -->|scale web| Web
+        KEDA -->|scale domain| Domain
+        KEDA -->|scale booking| Booking
+        KEDA -->|scale notification| Notification
+        KEDA -->|scale search| Search
+        KEDA -->|scale auth| Auth
+        KEDA -->|scale video| Video
+        KEDA -->|scale config| Config
+        KEDA -->|DB trigger| Postgres
 
         Web --> Filebeat
         Domain --> Filebeat
