@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logstash-config
+data:
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+      tcp {
+        port => 5000
+        codec => json_lines
+      }
+    }
+    filter {
+      if [message] =~ /^\{.*\}$/ {
+        json {
+          source => "message"
+          target => "parsed"
+          skip_on_invalid_json => true
+        }
+      }
+      mutate {
+        add_field => {
+          "[@metadata][target_index]" => "cohort-logs-%{+YYYY.MM.dd}"
+        }
+      }
+    }
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch:9200"]
+        index => "%{[@metadata][target_index]}"
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  labels:
+    app: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:8.11.3
+          ports:
+            - containerPort: 5044
+            - containerPort: 5000
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/logstash/pipeline
+      volumes:
+        - name: config-volume
+          configMap:
+            name: logstash-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+spec:
+  selector:
+    app: logstash
+  ports:
+    - name: beats
+      port: 5044
+      targetPort: 5044
+    - name: tcp
+      port: 5000
+      targetPort: 5000

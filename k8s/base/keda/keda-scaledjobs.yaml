@@ -1,0 +1,42 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledJob
+metadata:
+  name: video-transcode-scaledjob
+  labels:
+    app: video-transcoder
+spec:
+  jobTargetRef:
+    parallelism: 1
+    completions: 1
+    activeDeadlineSeconds: 1800
+    backoffLimit: 3
+    template:
+      metadata:
+        labels:
+          app: video-transcoder-worker
+      spec:
+        restartPolicy: OnFailure
+        containers:
+          - name: transcoder
+            image: cohort-video-service:prod
+            command: ["node", "dist/workers/transcode.worker.js"]
+            resources:
+              requests:
+                cpu: "500m"
+                memory: "512Mi"
+              limits:
+                cpu: "2000m"
+                memory: "2Gi"
+  pollingInterval: 10
+  successfulJobsHistoryLimit: 5
+  failedJobsHistoryLimit: 5
+  maxReplicaCount: 10
+  scalingStrategy:
+    strategy: "custom"
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus:9090
+        metricName: cohort_active_requests
+        query: sum(cohort_active_requests{service="video-service"})
+        threshold: '5'

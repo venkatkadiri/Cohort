@@ -1,0 +1,42 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cohort-stage
+namePrefix: stage-
+
+resources:
+  - ../../base
+
+replicas:
+  - name: domain-service
+    count: 2
+  - name: booking-service
+    count: 2
+  - name: video-service
+    count: 2
+  - name: config-hub
+    count: 2
+  - name: web
+    count: 2
+
+configMapGenerator:
+  - name: platform-env-config
+    literals:
+      - APP_ENV=stage
+      - NODE_ENV=production
+      - LOG_LEVEL=info
+
+patches:
+  - target:
+      kind: Ingress
+      name: platform-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: stage.cohort.io
+      - op: add
+        path: /spec/tls
+        value:
+          - hosts:
+              - stage.cohort.io
+            secretName: stage-cohort-tls

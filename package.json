@@ -1,0 +1,54 @@
+{
+  "name": "cohort-monorepo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx scripts/start-all.ts",
+    "start:all": "tsx scripts/start-all.ts",
+    "start:obs": "tsx scripts/start-all.ts --obs",
+    "dev": "tsx scripts/start-all.ts",
+    "dev:all": "tsx scripts/start-all.ts",
+    "dev:web": "pnpm --filter @cohort/web dev",
+    "services:all": "tsx scripts/start-services.ts",
+    "services:start": "tsx scripts/start-services.ts",
+    "backend:start": "tsx scripts/start-services.ts",
+    "domain:dev": "pnpm --filter @cohort/domain-hub dev",
+    "booking:dev": "pnpm --filter @cohort/booking-hub dev",
+    "notification:dev": "pnpm --filter @cohort/notification-hub dev",
+    "search:dev": "pnpm --filter @cohort/search-hub dev",
+    "auth:dev": "pnpm --filter @cohort/auth-hub dev",
+    "video:dev": "pnpm --filter @cohort/video-hub dev",
+    "config:dev": "pnpm --filter @cohort/configuration-hub dev",
+    "domain:start": "pnpm --filter @cohort/domain-hub dev",
+    "domain:build": "pnpm --filter @cohort/domain-hub build",
+    "build": "pnpm --filter @cohort/domain-hub build && pnpm --filter @cohort/booking-hub build && pnpm --filter @cohort/notification-hub build && pnpm --filter @cohort/search-hub build && pnpm --filter @cohort/auth-hub build && pnpm --filter @cohort/video-hub build && pnpm --filter @cohort/configuration-hub build && pnpm --filter @cohort/web build",
+    "typecheck": "pnpm --filter @cohort/observability typecheck && pnpm --filter @cohort/design-system typecheck && pnpm --filter @cohort/domain-hub typecheck && pnpm --filter @cohort/booking-hub typecheck && pnpm --filter @cohort/notification-hub typecheck && pnpm --filter @cohort/search-hub typecheck && pnpm --filter @cohort/auth-hub typecheck && pnpm --filter @cohort/video-hub typecheck && pnpm --filter @cohort/configuration-hub typecheck && pnpm --filter @cohort/web typecheck",
+    "generate-routes": "pnpm --filter @cohort/web generate-routes",
+    "db:seed": "pnpm --filter @cohort/domain-hub seed",
+    "db:push": "pnpm --filter @cohort/domain-hub db:push",
+    "docker:temporal:up": "docker compose up -d",
+    "docker:temporal:down": "docker compose down",
+    "obs:up": "docker compose -f docker-compose.observability.yml up -d",
+    "obs:down": "docker compose -f docker-compose.observability.yml down",
+    "storybook": "pnpm --filter @cohort/design-system storybook",
+    "storybook:build": "pnpm --filter @cohort/design-system build-storybook",
+    "k8s:dev": "kubectl apply -k k8s/overlays/dev",
+    "k8s:stage": "kubectl apply -k k8s/overlays/stage",
+    "k8s:prod": "kubectl apply -k k8s/overlays/prod",
+    "k8s:obs": "kubectl apply -k k8s/base/observability",
+    "k8s:keda": "kubectl apply -k k8s/base/keda",
+    "k8s:keda:install": "kubectl apply --server-side -f https://github.com/kedacore/keda/releases/download/v2.13.0/keda-2.13.0.yaml",
+    "k8s:diff": "kubectl diff -k k8s/overlays/dev"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.23.12",
+    "typescript": "^6.0.2"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss"
+    ]
+  }
+}

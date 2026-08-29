@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-hub
+  labels:
+    app: auth-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-hub
+  template:
+    metadata:
+      labels:
+        app: auth-hub
+    spec:
+      containers:
+        - name: auth-hub
+          image: cohort/auth-hub:latest
+          ports:
+            - containerPort: 8003
+              name: http
+            - containerPort: 50054
+              name: grpc
+          env:
+            - name: PORT
+              value: "8003"
+            - name: NODE_ENV
+              value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-hub
+  labels:
+    app: auth-hub
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8003
+      targetPort: 8003
+      name: http
+    - port: 50054
+      targetPort: 50054
+      name: grpc
+  selector:
+    app: auth-hub

@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cohort-prod
+namePrefix: prod-
+
+resources:
+  - ../../base
+  - hpa.yaml
+  - pdb.yaml
+
+replicas:
+  - name: domain-hub
+    count: 3
+  - name: booking-hub
+    count: 3
+  - name: video-hub
+    count: 3
+  - name: config-hub
+    count: 2
+  - name: web
+    count: 3
+
+configMapGenerator:
+  - name: platform-env-config
+    literals:
+      - APP_ENV=prod
+      - NODE_ENV=production
+      - LOG_LEVEL=warn
+
+patches:
+  - target:
+      kind: Ingress
+      name: platform-ingress
+    patch: |-
+      - op: replace
+        path: /spec/rules/0/host
+        value: cohort.io
+      - op: add
+        path: /spec/tls
+        value:
+          - hosts:
+              - cohort.io
+              - app.cohort.io
+            secretName: prod-cohort-tls
+      - op: add
+        path: /metadata/annotations/cert-manager.io~1cluster-issuer
+        value: letsencrypt-prod

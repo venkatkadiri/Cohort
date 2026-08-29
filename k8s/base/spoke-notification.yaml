@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-hub
+  labels:
+    app: notification-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-hub
+  template:
+    metadata:
+      labels:
+        app: notification-hub
+    spec:
+      containers:
+        - name: notification-hub
+          image: cohort/notification-hub:latest
+          ports:
+            - containerPort: 8001
+              name: http
+            - containerPort: 50052
+              name: grpc
+          env:
+            - name: PORT
+              value: "8001"
+            - name: NODE_ENV
+              value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-hub
+  labels:
+    app: notification-hub
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8001
+      targetPort: 8001
+      name: http
+    - port: 50052
+      targetPort: 50052
+      name: grpc
+  selector:
+    app: notification-hub

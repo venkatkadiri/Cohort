@@ -1,0 +1,69 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  scrape_timeout: 10s
+
+scrape_configs:
+  - job_name: 'cohort-hub-domain'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8000', 'domain-hub:8000']
+        labels:
+          role: 'hub'
+          service: 'domain-hub'
+
+  - job_name: 'cohort-spoke-booking'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8004', 'booking-hub:8004']
+        labels:
+          role: 'spoke'
+          service: 'booking-hub'
+
+  - job_name: 'cohort-spoke-notification'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8001', 'notification-hub:8001']
+        labels:
+          role: 'spoke'
+          service: 'notification-hub'
+
+  - job_name: 'cohort-spoke-search'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8002', 'search-hub:8002']
+        labels:
+          role: 'spoke'
+          service: 'search-hub'
+
+  - job_name: 'cohort-spoke-auth'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8003', 'auth-hub:8003']
+        labels:
+          role: 'spoke'
+          service: 'auth-hub'
+
+  - job_name: 'cohort-spoke-video'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8005', 'video-hub:8005']
+        labels:
+          role: 'spoke'
+          service: 'video-hub'
+
+  - job_name: 'cohort-spoke-config-hub'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:8006', 'configuration-hub:8006']
+        labels:
+          role: 'spoke'
+          service: 'configuration-hub'
+
+  - job_name: 'cohort-web-bff'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:3000', 'web:3000']
+        labels:
+          role: 'bff'
+          service: 'web'

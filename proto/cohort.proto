@@ -1,0 +1,542 @@
+syntax = "proto3";
+
+package cohort;
+
+// ==========================================
+// COMMON / SHARED MESSAGES
+// ==========================================
+
+message Empty {}
+
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message PageInfoModel {
+  bool has_next_page = 1;
+  bool has_previous_page = 2;
+  optional string start_cursor = 3;
+  optional string end_cursor = 4;
+  int32 total_count = 5;
+}
+
+// ==========================================
+// USER DOMAIN
+// ==========================================
+
+message UserCount {
+  int32 event_types = 1;
+  int32 bookings = 2;
+}
+
+message UserModel {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  string slug = 4;
+  string timezone = 5;
+  string created_at = 6;
+  string updated_at = 7;
+  UserCount count = 8;
+}
+
+message ListUsersResponse {
+  repeated UserModel users = 1;
+  PageInfoModel page_info = 2;
+}
+
+message GetUserRequest {
+  int32 id = 1;
+  string slug = 2;
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string email = 2;
+  string slug = 3;
+  string timezone = 4;
+}
+
+message UpdateUserRequest {
+  int32 id = 1;
+  optional string name = 2;
+  optional string email = 3;
+  optional string slug = 4;
+  optional string timezone = 5;
+}
+
+message DeleteUserRequest {
+  int32 id = 1;
+}
+
+service UserService {
+  rpc ListUsers(Empty) returns (ListUsersResponse);
+  rpc GetUserById(GetUserRequest) returns (UserModel);
+  rpc GetUserBySlug(GetUserRequest) returns (UserModel);
+  rpc CreateUser(CreateUserRequest) returns (UserModel);
+  rpc UpdateUser(UpdateUserRequest) returns (UserModel);
+  rpc DeleteUser(DeleteUserRequest) returns (StatusResponse);
+}
+
+// ==========================================
+// EVENT TYPE DOMAIN
+// ==========================================
+
+message EventTypeModel {
+  int32 id = 1;
+  int32 host_id = 2;
+  string title = 3;
+  string description = 4;
+  string slug = 5;
+  int32 duration_minutes = 6;
+  bool is_active = 7;
+  string location_type = 8;
+  string location_value = 9;
+  int32 buffer_before_minutes = 10;
+  int32 buffer_after_minutes = 11;
+  string created_at = 12;
+  string updated_at = 13;
+}
+
+message ListEventTypesRequest {
+  int32 host_id = 1;
+}
+
+message ListEventTypesResponse {
+  repeated EventTypeModel event_types = 1;
+  PageInfoModel page_info = 2;
+}
+
+message GetEventTypeRequest {
+  int32 id = 1;
+  int32 host_id = 2;
+  string slug = 3;
+}
+
+message PublicEventTypeResponse {
+  EventTypeModel event_type = 1;
+  UserModel host = 2;
+}
+
+message CreateEventTypeRequest {
+  int32 host_id = 1;
+  string title = 2;
+  string description = 3;
+  string slug = 4;
+  int32 duration_minutes = 5;
+  bool is_active = 6;
+  string location_type = 7;
+  string location_value = 8;
+  int32 buffer_before_minutes = 9;
+  int32 buffer_after_minutes = 10;
+}
+
+message UpdateEventTypeRequest {
+  int32 id = 1;
+  int32 host_id = 2;
+  optional string title = 3;
+  optional string description = 4;
+  optional string slug = 5;
+  optional int32 duration_minutes = 6;
+  optional bool is_active = 7;
+  optional string location_type = 8;
+  optional string location_value = 9;
+  optional int32 buffer_before_minutes = 10;
+  optional int32 buffer_after_minutes = 11;
+}
+
+message DeleteEventTypeRequest {
+  int32 id = 1;
+  int32 host_id = 2;
+}
+
+service EventTypeService {
+  rpc ListEventTypes(ListEventTypesRequest) returns (ListEventTypesResponse);
+  rpc GetEventTypeById(GetEventTypeRequest) returns (EventTypeModel);
+  rpc GetEventTypeBySlug(GetEventTypeRequest) returns (EventTypeModel);
+  rpc GetPublicEventType(GetEventTypeRequest) returns (PublicEventTypeResponse);
+  rpc CreateEventType(CreateEventTypeRequest) returns (EventTypeModel);
+  rpc UpdateEventType(UpdateEventTypeRequest) returns (EventTypeModel);
+  rpc DeleteEventType(DeleteEventTypeRequest) returns (StatusResponse);
+}
+
+// ==========================================
+// AVAILABILITY DOMAIN
+// ==========================================
+
+message AvailabilityRuleModel {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 weekday = 3;
+  string start_time = 4;
+  string end_time = 5;
+  bool is_active = 6;
+  string timezone = 7;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message AvailabilityExceptionModel {
+  int32 id = 1;
+  int32 user_id = 2;
+  string date = 3;
+  string type = 4;
+  string start_time = 5;
+  string end_time = 6;
+  string timezone = 7;
+  string reason = 8;
+  string created_at = 9;
+  string updated_at = 10;
+}
+
+message ListAvailabilityRequest {
+  int32 user_id = 1;
+}
+
+message ListRulesResponse {
+  repeated AvailabilityRuleModel rules = 1;
+}
+
+message CreateRuleRequest {
+  int32 user_id = 1;
+  int32 weekday = 2;
+  string start_time = 3;
+  string end_time = 4;
+  bool is_active = 5;
+  string timezone = 6;
+}
+
+message UpdateRuleRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  optional int32 weekday = 3;
+  optional string start_time = 4;
+  optional string end_time = 5;
+  optional bool is_active = 6;
+  optional string timezone = 7;
+}
+
+message DeleteRuleRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+}
+
+message ListExceptionsRequest {
+  int32 user_id = 1;
+  optional string from = 2;
+  optional string to = 3;
+}
+
+message ListExceptionsResponse {
+  repeated AvailabilityExceptionModel exceptions = 1;
+}
+
+message CreateExceptionRequest {
+  int32 user_id = 1;
+  string date = 2;
+  string type = 3;
+  optional string start_time = 4;
+  optional string end_time = 5;
+  optional string timezone = 6;
+  optional string reason = 7;
+}
+
+message UpdateExceptionRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  optional string date = 3;
+  optional string type = 4;
+  optional string start_time = 5;
+  optional string end_time = 6;
+  optional string timezone = 7;
+  optional string reason = 8;
+}
+
+message DeleteExceptionRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+}
+
+service AvailabilityService {
+  rpc ListRules(ListAvailabilityRequest) returns (ListRulesResponse);
+  rpc CreateRule(CreateRuleRequest) returns (AvailabilityRuleModel);
+  rpc UpdateRule(UpdateRuleRequest) returns (AvailabilityRuleModel);
+  rpc DeleteRule(DeleteRuleRequest) returns (StatusResponse);
+
+  rpc ListExceptions(ListExceptionsRequest) returns (ListExceptionsResponse);
+  rpc CreateException(CreateExceptionRequest) returns (AvailabilityExceptionModel);
+  rpc UpdateException(UpdateExceptionRequest) returns (AvailabilityExceptionModel);
+  rpc DeleteException(DeleteExceptionRequest) returns (StatusResponse);
+}
+
+// ==========================================
+// SLOT DOMAIN
+// ==========================================
+
+message SlotModel {
+  string id = 1;
+  int32 host_id = 2;
+  int32 event_type_id = 3;
+  string start_at = 4;
+  string end_at = 5;
+  string status = 6;
+  string created_at = 7;
+  string updated_at = 8;
+  EventTypeModel event_type = 9;
+}
+
+message GetAvailableSlotsRequest {
+  int32 event_type_id = 1;
+  string date = 2; // YYYY-MM-DD
+}
+
+message ListSlotsResponse {
+  repeated SlotModel slots = 1;
+  PageInfoModel page_info = 2;
+}
+
+message ListSlotsForHostRequest {
+  int32 host_id = 1;
+  optional string from = 2;
+  optional string to = 3;
+}
+
+message CreateSlotRequest {
+  int32 host_id = 1;
+  int32 event_type_id = 2;
+  string start_at = 3;
+  string end_at = 4;
+}
+
+message RegenerateSlotsRequest {
+  int32 host_id = 1;
+  optional string from = 2;
+  optional string to = 3;
+  optional int32 days_ahead = 4;
+}
+
+message RegenerateSlotsResponse {
+  bool success = 1;
+  int32 generated_count = 2;
+  string message = 3;
+}
+
+message UpdateSlotRequest {
+  string id = 1;
+  int32 host_id = 2;
+  optional int32 event_type_id = 3;
+  optional string start_at = 4;
+  optional string end_at = 5;
+  optional string status = 6;
+}
+
+message DeleteSlotRequest {
+  string id = 1;
+  int32 host_id = 2;
+}
+
+service SlotService {
+  rpc GetAvailableSlots(GetAvailableSlotsRequest) returns (ListSlotsResponse);
+  rpc ListSlotsForHost(ListSlotsForHostRequest) returns (ListSlotsResponse);
+  rpc CreateSlot(CreateSlotRequest) returns (SlotModel);
+  rpc UpdateSlot(UpdateSlotRequest) returns (SlotModel);
+  rpc DeleteSlot(DeleteSlotRequest) returns (StatusResponse);
+  rpc RegenerateSlots(RegenerateSlotsRequest) returns (RegenerateSlotsResponse);
+}
+
+// ==========================================
+// BOOKING DOMAIN
+// ==========================================
+
+message BookingModel {
+  int32 id = 1;
+  int32 host_id = 2;
+  int32 event_type_id = 3;
+  string slot_id = 4;
+  string invitee_email = 5;
+  string invitee_name = 6;
+  string invitee_notes = 7;
+  string status = 8;
+  string meet_link = 9;
+  string calendar_event_id = 10;
+  string cancelled_at = 11;
+  string created_at = 12;
+  string updated_at = 13;
+  SlotModel slot = 14;
+  EventTypeModel event_type = 15;
+  UserModel host = 16;
+}
+
+message ListBookingsRequest {
+  int32 host_id = 1;
+}
+
+message ListBookingsResponse {
+  repeated BookingModel bookings = 1;
+  PageInfoModel page_info = 2;
+}
+
+message GetBookingRequest {
+  int32 id = 1;
+  optional int32 host_id = 2;
+}
+
+message CreateBookingRequest {
+  int32 event_type_id = 1;
+  string slot_id = 2;
+  string invitee_name = 3;
+  string invitee_email = 4;
+  string invitee_notes = 5;
+}
+
+message CancelBookingRequest {
+  int32 id = 1;
+  int32 host_id = 2;
+}
+
+service BookingService {
+  rpc ListBookings(ListBookingsRequest) returns (ListBookingsResponse);
+  rpc GetBookingById(GetBookingRequest) returns (BookingModel);
+  rpc CreateBooking(CreateBookingRequest) returns (BookingModel);
+  rpc CancelBooking(CancelBookingRequest) returns (BookingModel);
+}
+
+// ==========================================
+// NOTIFICATION SPOKE
+// ==========================================
+
+message SendNotificationRequest {
+  string recipient_email = 1;
+  string title = 2;
+  string message = 3;
+  string category = 4;
+}
+
+message NotificationItemModel {
+  string id = 1;
+  string title = 2;
+  string message = 3;
+  string category = 4;
+  string timestamp = 5;
+  bool read = 6;
+}
+
+message ListNotificationsResponse {
+  repeated NotificationItemModel notifications = 1;
+}
+
+service NotificationService {
+  rpc SendNotification(SendNotificationRequest) returns (StatusResponse);
+  rpc ListNotifications(Empty) returns (ListNotificationsResponse);
+}
+
+// ==========================================
+// SEARCH SPOKE
+// ==========================================
+
+message SearchQueryRequest {
+  string query = 1;
+  optional string filter = 2;
+}
+
+message SearchResultItem {
+  string id = 1;
+  string type = 2;
+  string title = 3;
+  string subtitle = 4;
+  string url = 5;
+}
+
+message SearchQueryResponse {
+  repeated SearchResultItem results = 1;
+}
+
+service SearchService {
+  rpc Search(SearchQueryRequest) returns (SearchQueryResponse);
+}
+
+// ==========================================
+// VIDEO SPOKE
+// ==========================================
+
+message VideoMetadataModel {
+  string id = 1;
+  string title = 2;
+  string teacher_id = 3;
+  string teacher_name = 4;
+  string track_title = 5;
+  int32 duration_minutes = 6;
+  repeated string resolutions = 7;
+  string stream_url = 8;
+  string thumbnail_url = 9;
+  string description = 10;
+  string created_at = 11;
+}
+
+message ListVideosResponse {
+  repeated VideoMetadataModel videos = 1;
+  PageInfoModel page_info = 2;
+}
+
+message GetVideoRequest {
+  string id = 1;
+}
+
+service VideoService {
+  rpc ListVideos(Empty) returns (ListVideosResponse);
+  rpc GetVideo(GetVideoRequest) returns (VideoMetadataModel);
+}
+
+// ==========================================
+// CONFIGURATION HUB SPOKE
+// ==========================================
+
+message FeatureFlagModel {
+  string key = 1;
+  string name = 2;
+  string description = 3;
+  string category = 4;
+  bool default_enabled = 5;
+}
+
+message ListFeatureFlagsResponse {
+  repeated FeatureFlagModel features = 1;
+}
+
+message RoleConfigModel {
+  string role = 1;
+  map<string, bool> features = 2;
+}
+
+message GetRoleConfigRequest {
+  string role = 1;
+}
+
+service ConfigService {
+  rpc ListFeatures(Empty) returns (ListFeatureFlagsResponse);
+  rpc GetRoleConfig(GetRoleConfigRequest) returns (RoleConfigModel);
+}
+
+// ==========================================
+// AUTH & ENROLLER DOMAIN
+// ==========================================
+
+message EnrollerModel {
+  int32 id = 1;
+  string auth_id = 2;
+  string email = 3;
+  string name = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message CreateEnrollerRequest {
+  string email = 1;
+  string name = 2;
+  optional string auth_id = 3;
+}
+
+service AuthService {
+  rpc CreateEnroller(CreateEnrollerRequest) returns (EnrollerModel);
+}

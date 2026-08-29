@@ -1,0 +1,58 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cohort-ingress
+  namespace: cohort
+  labels:
+    app.kubernetes.io/name: cohort-ingress
+    app.kubernetes.io/part-of: cohort-platform
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+    - host: cohort.local
+      http:
+        paths:
+          # Web Frontend (TanStack Start BFF)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 3000
+          # FastAPI REST & Swagger Docs
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: domain-service
+                port:
+                  number: 8000
+          - path: /docs
+            pathType: Prefix
+            backend:
+              service:
+                name: domain-service
+                port:
+                  number: 8000
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: domain-service
+                port:
+                  number: 8000
+    - host: temporal.cohort.local
+      http:
+        paths:
+          # Temporal Web UI Dashboard
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: temporal-ui
+                port:
+                  number: 8080

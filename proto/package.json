@@ -1,0 +1,10 @@
+{
+  "name": "@cohort/proto",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared canonical Protocol Buffers contracts for Cohort",
+  "main": "cohort.proto",
+  "files": [
+    "cohort.proto"
+  ]
+}

@@ -1,0 +1,177 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id                     Int                     @id @default(autoincrement())
+  email                  String                  @unique
+  name                   String
+  slug                   String                  @unique
+  timezone               String                  @default("UTC")
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now()) @updatedAt
+  eventTypes             EventType[]
+  availabilityRules      AvailabilityRule[]
+  availabilityExceptions AvailabilityException[]
+  slots                  Slot[]
+  bookings               Booking[]
+  teacher                Teacher?
+
+  @@map("users")
+}
+
+model EventType {
+  id                  Int            @id @default(autoincrement())
+  hostId              Int
+  title               String
+  description         String?
+  slug                String
+  durationMinutes     Int
+  isActive            Boolean        @default(true)
+  locationType        String         @default("online")
+  locationValue       String?
+  bufferBeforeMinutes Int            @default(0)
+  bufferAfterMinutes  Int            @default(0)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @default(now()) @updatedAt
+  host                User           @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  slots               Slot[]
+  bookings            Booking[]
+  subscriptions       Subscription[]
+  slotRequests        SlotRequest[]
+
+  @@unique([hostId, slug], name: "event_types_hostId_slug_key")
+  @@map("event_types")
+}
+
+model AvailabilityRule {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  weekday   Int
+  startTime String
+  endTime   String
+  isActive  Boolean  @default(true)
+  timezone  String   @default("UTC")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, weekday])
+  @@map("availability_rules")
+}
+
+model AvailabilityException {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  date      DateTime @db.Date
+  type      String
+  startTime String?
+  endTime   String?
+  timezone  String   @default("UTC")
+  reason    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@map("availability_exceptions")
+}
+
+model Slot {
+  id          String    @id
+  hostId      Int
+  eventTypeId Int
+  startAt     DateTime  @db.Timestamptz(6)
+  endAt       DateTime  @db.Timestamptz(6)
+  status      String    @default("AVAILABLE")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  host        User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  bookings    Booking[]
+
+  @@unique([eventTypeId, startAt, endAt], name: "slots_eventTypeId_startAt_endAt_key")
+  @@index([hostId, startAt])
+  @@index([eventTypeId, startAt, status])
+  @@map("slots")
+}
+
+model Booking {
+  id              Int       @id @default(autoincrement())
+  hostId          Int
+  eventTypeId     Int
+  slotId          String
+  inviteeEmail    String
+  inviteeNotes    String?
+  inviteeName     String
+  status          String    @default("PENDING")
+  meetLink        String?
+  calendarEventId String?
+  cancelledAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  host            User      @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  eventType       EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+  slot            Slot      @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([inviteeEmail])
+  @@index([hostId, createdAt])
+  @@map("bookings")
+}
+
+model Teacher {
+  id        Int      @id @default(autoincrement())
+  authId    String   @unique
+  email     String   @unique
+  name      String
+  userId    Int?     @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teachers")
+}
+
+model Enroller {
+  id           Int           @id @default(autoincrement())
+  authId       String        @unique
+  email        String        @unique
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @default(now()) @updatedAt
+  subscriptions Subscription[]
+  slotRequests SlotRequest[]
+
+  @@map("enrollers")
+}
+
+model Subscription {
+  id          Int       @id @default(autoincrement())
+  enrollerId  Int
+  eventTypeId Int
+  createdAt   DateTime  @default(now())
+  enroller    Enroller  @relation(fields: [enrollerId], references: [id], onDelete: Cascade)
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollerId, eventTypeId], name: "subscriptions_enrollerId_eventTypeId_key")
+  @@map("subscriptions")
+}
+
+model SlotRequest {
+  id          Int       @id @default(autoincrement())
+  enrollerId  Int
+  eventTypeId Int
+  message     String?
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  enroller    Enroller  @relation(fields: [enrollerId], references: [id], onDelete: Cascade)
+  eventType   EventType @relation(fields: [eventTypeId], references: [id], onDelete: Cascade)
+
+  @@map("slot_requests")
+}

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-hub
+  labels:
+    app: config-hub
+    role: spoke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-hub
+  template:
+    metadata:
+      labels:
+        app: config-hub
+        role: spoke
+    spec:
+      containers:
+        - name: config-hub
+          image: cohort/configuration-hub:latest
+          ports:
+            - containerPort: 8006
+              name: http-config
+          env:
+            - name: PORT
+              value: "8006"
+            - name: NODE_ENV
+              value: "production"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8006
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: config-hub
+  labels:
+    app: config-hub
+    role: spoke
+spec:
+  ports:
+    - port: 8006
+      targetPort: 8006
+      name: http-config
+  selector:
+    app: config-hub

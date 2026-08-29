@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: domain-hub
+  labels:
+    app: domain-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: domain-hub
+  template:
+    metadata:
+      labels:
+        app: domain-hub
+    spec:
+      containers:
+        - name: domain-hub
+          image: cohort/domain-hub:latest
+          ports:
+            - containerPort: 8000
+              name: http
+            - containerPort: 50051
+              name: grpc
+          env:
+            - name: PORT
+              value: "8000"
+            - name: NODE_ENV
+              value: "production"
+            - name: SPOKE_BOOKING_URL
+              value: "http://booking-hub:8004/graphql"
+            - name: SPOKE_NOTIFICATION_URL
+              value: "http://notification-hub:8001/graphql"
+            - name: SPOKE_SEARCH_URL
+              value: "http://search-hub:8002/graphql"
+            - name: SPOKE_AUTH_URL
+              value: "http://auth-hub:8003/graphql"
+            - name: SPOKE_VIDEO_URL
+              value: "http://video-hub:8005/graphql"
+            - name: SPOKE_CONFIG_URL
+              value: "http://config-hub:8006/graphql"
+            - name: BOOKING_GRPC_URL
+              value: "booking-hub:50051"
+            - name: NOTIFICATION_GRPC_URL
+              value: "notification-hub:50052"
+            - name: SEARCH_GRPC_URL
+              value: "search-hub:50053"
+            - name: AUTH_GRPC_URL
+              value: "auth-hub:50054"
+            - name: VIDEO_GRPC_URL
+              value: "video-hub:50055"
+            - name: CONFIG_GRPC_URL
+              value: "config-hub:50056"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: domain-hub
+  labels:
+    app: domain-hub
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+      name: http
+    - port: 50051
+      targetPort: 50051
+      name: grpc
+  selector:
+    app: domain-hub

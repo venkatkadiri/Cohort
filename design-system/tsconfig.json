@@ -1,0 +1,13 @@
+{
+  "include": ["src", ".storybook"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true
+  }
+}

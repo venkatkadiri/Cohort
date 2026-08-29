@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-hub
+  labels:
+    app: search-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-hub
+  template:
+    metadata:
+      labels:
+        app: search-hub
+    spec:
+      containers:
+        - name: search-hub
+          image: cohort/search-hub:latest
+          ports:
+            - containerPort: 8002
+              name: http
+            - containerPort: 50053
+              name: grpc
+          env:
+            - name: PORT
+              value: "8002"
+            - name: NODE_ENV
+              value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: search-hub
+  labels:
+    app: search-hub
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8002
+      targetPort: 8002
+      name: http
+    - port: 50053
+      targetPort: 50053
+      name: grpc
+  selector:
+    app: search-hub
