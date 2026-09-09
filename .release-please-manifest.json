@@ -1,12 +1,12 @@
 {
-  "hubs/domain-hub": "1.0.0",
-  "hubs/booking-hub": "1.0.0",
-  "hubs/notification-hub": "1.0.0",
-  "hubs/search-hub": "1.0.0",
-  "hubs/auth-hub": "1.0.0",
-  "hubs/video-hub": "0.0.2",
-  "hubs/configuration-hub": "1.0.0",
-  "hubs/leader-hub": "0.1.0",
-  "hubs/transaction-hub": "0.1.0",
-  "hubs/web": "1.0.0"
+  "hubs/domain-hub": "1.0.1",
+  "hubs/booking-hub": "1.0.1",
+  "hubs/notification-hub": "1.0.1",
+  "hubs/search-hub": "1.0.1",
+  "hubs/auth-hub": "1.0.1",
+  "hubs/video-hub": "0.0.3",
+  "hubs/configuration-hub": "1.0.1",
+  "hubs/leader-hub": "0.1.1",
+  "hubs/transaction-hub": "0.1.1",
+  "hubs/web": "1.0.1"
 }
