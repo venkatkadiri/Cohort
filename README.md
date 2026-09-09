@@ -357,19 +357,54 @@ For Kubernetes-related deployment:
 pnpm k8s:dev
 pnpm k8s:stage
 pnpm k8s:prod
-pnpm k8s:obs
-```
+## Helm 3 & Containerized Tooling (Zero Host Dependencies)
 
-For Docker Compose-based local stack:
-
-```bash
-docker compose up -d
-```
-
-For observability stack:
+The repository provides a Docker-based utility container (`cohort-tools:latest`) so developers and CI systems can scaffold services, lint charts, and render templates without needing Helm, Kubectl, or Node locally installed:
 
 ```bash
-docker compose -f docker-compose.observability.yml up -d
+# Scaffold a new service (generates TypeScript hub, Dockerfile, and Helm 3 chart)
+./cohort-tools.sh scaffold analytics-hub 8009
+# or: pnpm docker:scaffold analytics-hub 8009
+
+# Lint all package and infrastructure Helm 3 charts
+./cohort-tools.sh helm:lint
+# or: pnpm docker:helm:lint
+
+# Render manifests for dev-eu-west1, stage, or prod environments
+./cohort-tools.sh helm:template:dev
+./cohort-tools.sh helm:template:stage
+./cohort-tools.sh helm:template:prod
+```
+
+## Minikube Multi-Environment Cluster
+
+To test and run the full platform locally across environments (`dev-eu-west1`, `stage`, and `prod`) on a real Kubernetes cluster with Ingress and Metrics Server:
+
+```bash
+# 1. Start Minikube with Ingress & Metrics Server
+./scripts/minikube.sh start
+# or: pnpm minikube:start
+
+# 2. Build service Docker images directly into Minikube's daemon
+./scripts/minikube.sh build-images
+# or: pnpm minikube:build
+
+# 3. Deploy to the desired environment
+./scripts/minikube.sh deploy dev     # deploys to cohort-dev-eu-west1 namespace
+./scripts/minikube.sh deploy stage   # deploys to cohort-stage namespace
+./scripts/minikube.sh deploy prod    # deploys to cohort-prod namespace (with HPA & PDB)
+
+# 4. Inspect status across pods, services, ingresses, and HPAs
+./scripts/minikube.sh status all
+
+# 5. Route local ingress traffic (in a separate terminal)
+./scripts/minikube.sh tunnel
+
+# 6. View required /etc/hosts domain mappings
+./scripts/minikube.sh hosts
+
+# 7. Clean up an environment
+./scripts/minikube.sh clean dev
 ```
 
 ## Summary

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: elk
+description: ELK Stack (Elasticsearch, Logstash, Kibana) Observability Chart for Cohort Platform
+type: application
+version: 1.0.0
+appVersion: "8.11.3"

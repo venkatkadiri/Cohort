@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "elk.fullname" . }}-elasticsearch
+  labels:
+    {{- include "elk.labels" . | nindent 4 }}
+    app: elasticsearch
+spec:
+  serviceName: {{ include "elk.fullname" . }}-elasticsearch
+  replicas: {{ .Values.elasticsearch.replicaCount }}
+  selector:
+    matchLabels:
+      app: elasticsearch
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: elasticsearch
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: elasticsearch
+          image: "{{ .Values.elasticsearch.image.repository }}:{{ .Values.elasticsearch.image.tag }}"
+          imagePullPolicy: {{ .Values.elasticsearch.image.pullPolicy }}
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          env:
+            - name: discovery.type
+              value: {{ .Values.elasticsearch.discoveryType | quote }}
+            - name: xpack.security.enabled
+              value: "false"
+            - name: ES_JAVA_OPTS
+              value: {{ .Values.elasticsearch.javaOpts | quote }}
+          volumeMounts:
+            - name: es-data
+              mountPath: /usr/share/elasticsearch/data
+          resources:
+            {{- toYaml .Values.elasticsearch.resources | nindent 12 }}
+  {{- if .Values.elasticsearch.persistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: es-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.elasticsearch.persistence.size | quote }}
+  {{- else }}
+      volumes:
+        - name: es-data
+          emptyDir: {}
+  {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch
+  labels:
+    {{- include "elk.labels" . | nindent 4 }}
+    app: elasticsearch
+spec:
+  type: {{ .Values.elasticsearch.service.type }}
+  ports:
+    - port: 9200
+      targetPort: 9200
+      name: http
+    - port: 9300
+      targetPort: 9300
+      name: transport
+  selector:
+    app: elasticsearch
+    app.kubernetes.io/instance: {{ .Release.Name }}

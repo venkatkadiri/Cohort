@@ -18,6 +18,7 @@ import VideoLibraryOutlinedIcon from "@mui/icons-material/VideoLibraryOutlined";
 import TuneOutlinedIcon from "@mui/icons-material/TuneOutlined";
 import StarIcon from "@mui/icons-material/Star";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import EmojiEventsOutlinedIcon from "@mui/icons-material/EmojiEventsOutlined";
 
 export interface NavSubsection {
   title: string;
@@ -213,6 +214,25 @@ export default function NavigationDrawer({
         ]
       : []),
     {
+      id: "leaderboard",
+      label: "EXP & Leaderboard",
+      icon: <EmojiEventsOutlinedIcon sx={{ fontSize: 20 }} />,
+      subsections: [
+        {
+          title: "Live Leaderboard Standings",
+          url: "/leaderboard",
+          tag: "WS LIVE",
+          description: "Real-time fellowship standings, EXP progression, and badges.",
+        },
+        {
+          title: "Buy Cohort Credits",
+          url: "/credits/buy",
+          tag: "STORE 🎟️",
+          description: "Purchase 1:1 office hours passes and EXP boost packs.",
+        },
+      ],
+    },
+    {
       id: "config",
       label: "Platform Configuration",
       icon: <TuneOutlinedIcon sx={{ fontSize: 20 }} />,
@@ -228,6 +248,25 @@ export default function NavigationDrawer({
   ];
 
   const studentSections: NavSection[] = [
+    {
+      id: "leaderboard",
+      label: "EXP & Leaderboard",
+      icon: <EmojiEventsOutlinedIcon sx={{ fontSize: 20 }} />,
+      subsections: [
+        {
+          title: "Live Leaderboard Standings",
+          url: "/leaderboard",
+          tag: "WS LIVE",
+          description: "Real-time fellowship standings, EXP progression, and badges.",
+        },
+        {
+          title: "Buy Cohort Credits",
+          url: "/credits/buy",
+          tag: "STORE 🎟️",
+          description: "Purchase 1:1 office hours passes and EXP boost packs.",
+        },
+      ],
+    },
     ...(isFeatureEnabled('fellows_hub')
       ? [
           {

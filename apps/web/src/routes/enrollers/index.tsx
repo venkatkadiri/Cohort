@@ -11,10 +11,12 @@ import Button from "@mui/material/Button";
 
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import BookOnlineIcon from "@mui/icons-material/BookOnline";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
 import { initials } from "../../lib/format";
 import { FellowsPageSkeleton } from "../../components/skeletons/FellowsPageSkeleton";
 import { usersQueryOptions } from "../../lib/queries";
+import { CreditProgressBar } from "../../components/CreditProgressBar";
 
 export const Route = createFileRoute("/enrollers/")({
   pendingComponent: FellowsPageSkeleton,
@@ -53,22 +55,41 @@ function EnrollersPage() {
             </Typography>
           </Box>
 
-          <Link to="/enrollers/dashboard" style={{ textDecoration: "none" }}>
-            <Button
-              variant="contained"
-              startIcon={<NotificationsActiveIcon />}
-              sx={{
-                fontWeight: 800,
-                borderRadius: 2,
-                background: "linear-gradient(135deg, #FF3E00 0%, #FF0055 100%)",
-                color: "#FFFFFF",
-                px: 2.5,
-              }}
-            >
-              My Subscriptions
-            </Button>
-          </Link>
+          <Stack direction="row" spacing={1.5}>
+            <Link to="/leaderboard" style={{ textDecoration: "none" }}>
+              <Button
+                variant="outlined"
+                startIcon={<EmojiEventsIcon sx={{ color: "#FF3E00" }} />}
+                sx={{
+                  fontWeight: 800,
+                  borderRadius: 2,
+                  borderColor: "divider",
+                }}
+              >
+                Live Leaderboard
+              </Button>
+            </Link>
+
+            <Link to="/enrollers/dashboard" style={{ textDecoration: "none" }}>
+              <Button
+                variant="contained"
+                startIcon={<NotificationsActiveIcon />}
+                sx={{
+                  fontWeight: 800,
+                  borderRadius: 2,
+                  background: "linear-gradient(135deg, #FF3E00 0%, #FF0055 100%)",
+                  color: "#FFFFFF",
+                  px: 2.5,
+                }}
+              >
+                My Subscriptions
+              </Button>
+            </Link>
+          </Stack>
         </Box>
+
+        {/* Live Fellow Credit Progress */}
+        <CreditProgressBar />
 
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>

@@ -28,8 +28,10 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import EmailIcon from "@mui/icons-material/Email";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 
 import ThemeToggle from "./ThemeToggle";
+import { CreditProgressBar } from "./CreditProgressBar";
 import { useNavigation, useSearch, useNotifications, useAuth } from "../context";
 
 // Code-split heavy modals so they are not included in the initial page payload
@@ -336,6 +338,32 @@ export default function Header() {
                   </IconButton>
                 </Tooltip>
               )}
+
+              {/* Live Credit Progress Mini Pill & Leaderboard Link */}
+              <Box sx={{ display: { xs: "none", lg: "flex" }, alignItems: "center", gap: 1 }}>
+                <CreditProgressBar compact />
+              </Box>
+
+              <Link to="/leaderboard" style={{ textDecoration: "none" }}>
+                <Tooltip title="Live Fellowship Leaderboard & EXP Rankings">
+                  <IconButton
+                    size="small"
+                    sx={{
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 2,
+                      p: 0.6,
+                      color: "#FF3E00",
+                      "&:hover": {
+                        borderColor: "#FF3E00",
+                        bgcolor: "rgba(255, 62, 0, 0.08)",
+                      },
+                    }}
+                  >
+                    <EmojiEventsIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Tooltip>
+              </Link>
 
               <ThemeToggle />
 

@@ -1,0 +1,57 @@
+replicaCount: 1
+
+image:
+  repository: cohort/domain-hub
+  tag: "1.0.0" # Target for CI/CD automated chore PRs
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+  grpcPort: 50051
+
+probes:
+  readinessPath: /health
+  livenessPath: /health
+
+env:
+  PORT: "8000"
+  NODE_ENV: "production"
+  SPOKE_BOOKING_URL: "http://booking-hub:8004/graphql"
+  SPOKE_NOTIFICATION_URL: "http://notification-hub:8001/graphql"
+  SPOKE_SEARCH_URL: "http://search-hub:8002/graphql"
+  SPOKE_AUTH_URL: "http://auth-hub:8003/graphql"
+  SPOKE_VIDEO_URL: "http://video-hub:8005/graphql"
+  SPOKE_CONFIG_URL: "http://configuration-hub:8006/graphql"
+  BOOKING_GRPC_URL: "booking-hub:50051"
+  NOTIFICATION_GRPC_URL: "notification-hub:50052"
+  SEARCH_GRPC_URL: "search-hub:50053"
+  AUTH_GRPC_URL: "auth-hub:50054"
+  VIDEO_GRPC_URL: "video-hub:50055"
+  CONFIG_GRPC_URL: "configuration-hub:50056"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: api.cohort.mesh
+  path: /
+  pathType: Prefix
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1

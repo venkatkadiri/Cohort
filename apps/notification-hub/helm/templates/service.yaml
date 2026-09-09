@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "notification-hub.fullname" . }}
+  labels:
+    {{- include "notification-hub.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8001
+      name: http
+      protocol: TCP
+    - port: {{ .Values.service.grpcPort }}
+      targetPort: 50052
+      name: grpc
+      protocol: TCP
+  selector:
+    {{- include "notification-hub.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: postgres
+description: PostgreSQL 15 Database Chart for Cohort Platform
+type: application
+version: 1.0.0
+appVersion: "15-alpine"

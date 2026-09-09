@@ -6,19 +6,22 @@ import { NavigationProvider } from "./NavigationContext";
 import { SearchProvider } from "./SearchContext";
 import { NotificationProvider } from "./NotificationContext";
 import { ConfigProvider } from "./ConfigContext";
+import { CreditProvider } from "./CreditContext";
 
 export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppThemeProvider>
       <ConfigProvider>
         <AuthProvider>
-          <LoadingProvider>
-            <NavigationProvider>
-              <SearchProvider>
-                <NotificationProvider>{children}</NotificationProvider>
-              </SearchProvider>
-            </NavigationProvider>
-          </LoadingProvider>
+          <CreditProvider>
+            <LoadingProvider>
+              <NavigationProvider>
+                <SearchProvider>
+                  <NotificationProvider>{children}</NotificationProvider>
+                </SearchProvider>
+              </NavigationProvider>
+            </LoadingProvider>
+          </CreditProvider>
         </AuthProvider>
       </ConfigProvider>
     </AppThemeProvider>

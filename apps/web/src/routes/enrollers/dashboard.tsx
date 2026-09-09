@@ -20,6 +20,7 @@ import {
 import { EmptyState } from "#/components/ui";
 import { ConfirmDialog, AlertDialog } from "#/components/Dialog";
 import { FellowsPageSkeleton } from "#/components/skeletons/FellowsPageSkeleton";
+import { CreditProgressBar } from "#/components/CreditProgressBar";
 
 export const Route = createFileRoute("/enrollers/dashboard")({
   pendingComponent: FellowsPageSkeleton,
@@ -87,6 +88,9 @@ function EnrollerDashboard() {
             </Button>
           </Link>
         </Box>
+
+        {/* Fellow Credit Status & Progress */}
+        <CreditProgressBar />
 
         <Card
           variant="outlined"

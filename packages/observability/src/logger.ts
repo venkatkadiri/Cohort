@@ -1,3 +1,5 @@
+import net from 'net'
+
 export interface LogContext {
   [key: string]: unknown
 }
@@ -21,6 +23,84 @@ export interface StructuredLogEntry {
   environment: string
   host?: string
 }
+
+class LogstashTransport {
+  private socket: net.Socket | null = null
+  private host: string
+  private port: number
+  private connected = false
+  private connecting = false
+  private queue: string[] = []
+
+  constructor(
+    host = process.env.LOGSTASH_HOST || '127.0.0.1',
+    port = Number(process.env.LOGSTASH_PORT) || 5000
+  ) {
+    this.host = host
+    this.port = port
+  }
+
+  private connect() {
+    if (this.connecting || this.connected) return
+    this.connecting = true
+
+    const s = new net.Socket()
+    s.setTimeout(3000)
+
+    s.once('connect', () => {
+      this.connected = true
+      this.connecting = false
+      this.socket = s
+      while (this.queue.length > 0) {
+        const item = this.queue.shift()
+        if (item) s.write(item)
+      }
+    })
+
+    s.on('error', () => {
+      this.connected = false
+      this.connecting = false
+      if (this.socket) {
+        this.socket.destroy()
+        this.socket = null
+      }
+    })
+
+    s.on('close', () => {
+      this.connected = false
+      this.connecting = false
+      this.socket = null
+    })
+
+    s.on('timeout', () => {
+      s.destroy()
+    })
+
+    try {
+      s.connect(this.port, this.host)
+    } catch {
+      this.connecting = false
+    }
+  }
+
+  send(jsonStr: string) {
+    const payload = jsonStr + '\n'
+    if (this.connected && this.socket && !this.socket.destroyed) {
+      try {
+        this.socket.write(payload)
+      } catch {
+        this.connected = false
+      }
+    } else {
+      if (this.queue.length < 100) {
+        this.queue.push(payload)
+      }
+      this.connect()
+    }
+  }
+}
+
+const globalLogstashTransport = new LogstashTransport()
 
 export class Logger {
   private isJsonFormat: boolean
@@ -62,6 +142,13 @@ export class Logger {
   }
 
   private log(level: LogLevel, color: string, message: string, ctx?: LogContext): void {
+    // 1. Always send structured log to Logstash (Elasticsearch) asynchronously in the background
+    try {
+      const jsonEntry = this.formatJson(level, message, ctx)
+      globalLogstashTransport.send(jsonEntry)
+    } catch {}
+
+    // 2. Output to console for local developer readability
     if (this.isJsonFormat) {
       const output = this.formatJson(level, message, ctx)
       if (level === 'ERROR') {

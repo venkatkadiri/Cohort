@@ -1,0 +1,35 @@
+# Staging values for elk stack
+elasticsearch:
+  replicaCount: 1
+  javaOpts: "-Xms1g -Xmx1g"
+  persistence:
+    enabled: true
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1.5Gi
+    limits:
+      cpu: 1500m
+      memory: 2.5Gi
+
+logstash:
+  replicaCount: 1
+  javaOpts: "-Xms512m -Xmx512m"
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+kibana:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi

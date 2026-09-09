@@ -1,0 +1,42 @@
+dependencies:
+- name: postgres
+  repository: file://../infrastructure/postgres
+  version: 1.0.0
+- name: temporal
+  repository: file://../infrastructure/temporal
+  version: 1.0.0
+- name: elk
+  repository: file://../infrastructure/elk
+  version: 1.0.0
+- name: domain-hub
+  repository: file://../../apps/domain-hub/helm
+  version: 1.0.0
+- name: booking-hub
+  repository: file://../../apps/booking-hub/helm
+  version: 1.0.0
+- name: notification-hub
+  repository: file://../../apps/notification-hub/helm
+  version: 1.0.0
+- name: search-hub
+  repository: file://../../apps/search-hub/helm
+  version: 1.0.0
+- name: auth-hub
+  repository: file://../../apps/auth-hub/helm
+  version: 1.0.0
+- name: video-hub
+  repository: file://../../apps/video-hub/helm
+  version: 1.0.0
+- name: configuration-hub
+  repository: file://../../apps/configuration-hub/helm
+  version: 1.0.0
+- name: web
+  repository: file://../../apps/web/helm
+  version: 1.0.0
+- name: leader-hub
+  repository: file://../../apps/leader-hub/helm
+  version: 1.0.0
+- name: transaction-hub
+  repository: file://../../apps/transaction-hub/helm
+  version: 1.0.0
+digest: sha256:9d5b23fe3fe22030b621ef70971278d64add4309345a8770e7da6f787163ce50
+generated: "2026-09-09T15:18:35.226949+05:30"

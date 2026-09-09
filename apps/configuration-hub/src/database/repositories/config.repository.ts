@@ -1,6 +1,64 @@
 import { FeatureFlag, RoleType } from '../models/config.model.js'
 
 export const DEFAULT_FEATURE_FLAGS: FeatureFlag[] = [
+  // CREDITS & GAMIFICATION
+  {
+    id: 'feat-credit-store',
+    key: 'credit_store',
+    name: 'Cohort Credits Store & Top-Up',
+    description: 'Student storefront to purchase 1:1 office hours booking passes and XP boost overdrive packs.',
+    category: 'ENGAGEMENT',
+    enabledForRoles: {
+      ROOT: true,
+      ADMIN: true,
+      TEACHER: true,
+      STUDENT: true,
+    },
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'feat-live-leaderboard',
+    key: 'live_leaderboard',
+    name: 'Global Leaderboards & Real-Time Stream',
+    description: 'Boot.dev-style ranked fellowship mesh with live WebSocket learning activity feed.',
+    category: 'ENGAGEMENT',
+    enabledForRoles: {
+      ROOT: true,
+      ADMIN: true,
+      TEACHER: true,
+      STUDENT: true,
+    },
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'feat-xp-gamification',
+    key: 'xp_gamification',
+    name: 'EXP Gamification & Badges Engine',
+    description: 'Watch rewards, level progression (Lvl 1-10), study streak multipliers, and celebration modals.',
+    category: 'ENGAGEMENT',
+    enabledForRoles: {
+      ROOT: true,
+      ADMIN: true,
+      TEACHER: true,
+      STUDENT: true,
+    },
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: 'feat-token-economics',
+    key: 'token_economics',
+    name: 'Teacher Token Economics & Conversion Policy',
+    description: 'Instructor console for configuring XP conversion factor sliders and difficulty reward matrices.',
+    category: 'SCHEDULING',
+    enabledForRoles: {
+      ROOT: true,
+      ADMIN: true,
+      TEACHER: true,
+      STUDENT: false,
+    },
+    updatedAt: new Date().toISOString(),
+  },
+
   // CORE & DIRECTORY
   {
     id: 'feat-1',

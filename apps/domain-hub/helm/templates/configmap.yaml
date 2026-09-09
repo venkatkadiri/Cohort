@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "domain-hub.fullname" . }}-config
+  labels:
+    {{- include "domain-hub.labels" . | nindent 4 }}
+data:
+  PORT: {{ .Values.env.PORT | default "8000" | quote }}
+  NODE_ENV: {{ .Values.env.NODE_ENV | default "production" | quote }}
+  SPOKE_BOOKING_URL: {{ .Values.env.SPOKE_BOOKING_URL | default "http://booking-hub:8004/graphql" | quote }}
+  SPOKE_NOTIFICATION_URL: {{ .Values.env.SPOKE_NOTIFICATION_URL | default "http://notification-hub:8001/graphql" | quote }}
+  SPOKE_SEARCH_URL: {{ .Values.env.SPOKE_SEARCH_URL | default "http://search-hub:8002/graphql" | quote }}
+  SPOKE_AUTH_URL: {{ .Values.env.SPOKE_AUTH_URL | default "http://auth-hub:8003/graphql" | quote }}
+  SPOKE_VIDEO_URL: {{ .Values.env.SPOKE_VIDEO_URL | default "http://video-hub:8005/graphql" | quote }}
+  SPOKE_CONFIG_URL: {{ .Values.env.SPOKE_CONFIG_URL | default "http://configuration-hub:8006/graphql" | quote }}
+  BOOKING_GRPC_URL: {{ .Values.env.BOOKING_GRPC_URL | default "booking-hub:50051" | quote }}
+  NOTIFICATION_GRPC_URL: {{ .Values.env.NOTIFICATION_GRPC_URL | default "notification-hub:50052" | quote }}
+  SEARCH_GRPC_URL: {{ .Values.env.SEARCH_GRPC_URL | default "search-hub:50053" | quote }}
+  AUTH_GRPC_URL: {{ .Values.env.AUTH_GRPC_URL | default "auth-hub:50054" | quote }}
+  VIDEO_GRPC_URL: {{ .Values.env.VIDEO_GRPC_URL | default "video-hub:50055" | quote }}
+  CONFIG_GRPC_URL: {{ .Values.env.CONFIG_GRPC_URL | default "configuration-hub:50056" | quote }}

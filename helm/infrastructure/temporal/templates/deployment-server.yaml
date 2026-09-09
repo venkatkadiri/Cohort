@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "temporal.fullname" . }}-server
+  labels:
+    {{- include "temporal.labels" . | nindent 4 }}
+    app: temporal-server
+spec:
+  replicas: {{ .Values.server.replicaCount }}
+  selector:
+    matchLabels:
+      app: temporal-server
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: temporal-server
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: server
+          image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
+          imagePullPolicy: {{ .Values.server.image.pullPolicy }}
+          ports:
+            - containerPort: 7233
+              name: grpc
+          env:
+            - name: DB
+              value: "postgres12"
+            - name: DB_PORT
+              value: {{ .Values.server.env.dbPort | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.server.env.postgresUser | quote }}
+            - name: POSTGRES_PWD
+              value: {{ .Values.server.env.postgresPassword | quote }}
+            - name: POSTGRES_SEEDS
+              value: {{ .Values.server.env.postgresSeeds | quote }}
+          resources:
+            {{- toYaml .Values.server.resources | nindent 12 }}

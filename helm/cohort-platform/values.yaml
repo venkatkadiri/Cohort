@@ -1,0 +1,44 @@
+# Global & Subchart Default Overrides for Cohort Platform
+global:
+  environment: development
+  region: eu-west-1
+  domainSuffix: cohort.mesh
+
+postgres:
+  enabled: true
+
+temporal:
+  enabled: true
+
+elk:
+  enabled: true
+
+domain-hub:
+  enabled: true
+
+booking-hub:
+  enabled: true
+
+notification-hub:
+  enabled: true
+
+search-hub:
+  enabled: true
+
+auth-hub:
+  enabled: true
+
+video-hub:
+  enabled: true
+
+configuration-hub:
+  enabled: true
+
+web:
+  enabled: true
+
+leader-hub:
+  enabled: true
+
+transaction-hub:
+  enabled: true

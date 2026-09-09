@@ -1,0 +1,147 @@
+# ==============================================================================
+# Cohort Platform Environment: dev-eu-west1 (Ireland Region)
+# ==============================================================================
+global:
+  environment: dev
+  region: eu-west-1
+  domainSuffix: dev-eu-west1.cohort.mesh
+
+postgres:
+  replicaCount: 1
+  persistence:
+    size: 5Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+temporal:
+  server:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+  ui:
+    replicaCount: 1
+
+elk:
+  elasticsearch:
+    replicaCount: 1
+    javaOpts: "-Xms384m -Xmx384m"
+    persistence:
+      size: 5Gi
+  logstash:
+    replicaCount: 1
+  kibana:
+    replicaCount: 1
+
+domain-hub:
+  replicaCount: 1
+  ingress:
+    enabled: true
+    host: api.dev-eu-west1.cohort.mesh
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+booking-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+notification-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+search-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+auth-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+video-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+configuration-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+web:
+  replicaCount: 1
+  ingress:
+    enabled: true
+    host: dev-eu-west1.cohort.mesh
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+leader-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+
+transaction-hub:
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+

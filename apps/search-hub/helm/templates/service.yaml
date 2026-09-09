@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "search-hub.fullname" . }}
+  labels:
+    {{- include "search-hub.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8002
+      name: http
+      protocol: TCP
+    - port: {{ .Values.service.grpcPort }}
+      targetPort: 50053
+      name: grpc
+      protocol: TCP
+  selector:
+    {{- include "search-hub.selectorLabels" . | nindent 4 }}

@@ -1,0 +1,47 @@
+apiVersion: v2
+name: cohort-platform
+description: Master Umbrella Helm Chart for the Complete Cohort Microservices Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+dependencies:
+  - name: postgres
+    version: 1.0.0
+    repository: "file://../infrastructure/postgres"
+  - name: temporal
+    version: 1.0.0
+    repository: "file://../infrastructure/temporal"
+  - name: elk
+    version: 1.0.0
+    repository: "file://../infrastructure/elk"
+  - name: domain-hub
+    version: 1.0.0
+    repository: "file://../../apps/domain-hub/helm"
+  - name: booking-hub
+    version: 1.0.0
+    repository: "file://../../apps/booking-hub/helm"
+  - name: notification-hub
+    version: 1.0.0
+    repository: "file://../../apps/notification-hub/helm"
+  - name: search-hub
+    version: 1.0.0
+    repository: "file://../../apps/search-hub/helm"
+  - name: auth-hub
+    version: 1.0.0
+    repository: "file://../../apps/auth-hub/helm"
+  - name: video-hub
+    version: 1.0.0
+    repository: "file://../../apps/video-hub/helm"
+  - name: configuration-hub
+    version: 1.0.0
+    repository: "file://../../apps/configuration-hub/helm"
+  - name: web
+    version: 1.0.0
+    repository: "file://../../apps/web/helm"
+  - name: leader-hub
+    version: 1.0.0
+    repository: "file://../../apps/leader-hub/helm"
+  - name: transaction-hub
+    version: 1.0.0
+    repository: "file://../../apps/transaction-hub/helm"

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: temporal
+description: Temporal Workflow Orchestrator (Server & Web UI) Chart for Cohort Platform
+type: application
+version: 1.0.0
+appVersion: "1.22.4"

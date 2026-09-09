@@ -1,0 +1,36 @@
+# Production values for elk stack
+elasticsearch:
+  replicaCount: 3
+  discoveryType: multi-node
+  javaOpts: "-Xms4g -Xmx4g"
+  persistence:
+    enabled: true
+    size: 100Gi
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 4Gi
+    limits:
+      cpu: 4000m
+      memory: 8Gi
+
+logstash:
+  replicaCount: 2
+  javaOpts: "-Xms1g -Xmx1g"
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1.5Gi
+    limits:
+      cpu: 2000m
+      memory: 3Gi
+
+kibana:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi

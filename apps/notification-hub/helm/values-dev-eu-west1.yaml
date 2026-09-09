@@ -1,0 +1,20 @@
+# Environment: dev-eu-west1 (Ireland)
+replicaCount: 1
+
+ingress:
+  enabled: false
+  host: dev-eu-west1.notification-hub.cohort.mesh
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 128Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false

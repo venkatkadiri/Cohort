@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "domain-hub.fullname" . }}
+  labels:
+    {{- include "domain-hub.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8000
+      name: http
+      protocol: TCP
+    - port: {{ .Values.service.grpcPort }}
+      targetPort: 50051
+      name: grpc
+      protocol: TCP
+  selector:
+    {{- include "domain-hub.selectorLabels" . | nindent 4 }}

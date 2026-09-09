@@ -21,6 +21,7 @@ import { listSlotRequestsForTeacherFn } from "../../server/functions/enrollers.f
 import { listUsers } from "../../server/functions/users.fn";
 import { formatDuration } from "../../lib/format";
 import { StudioDashboardSkeleton } from "../../components/skeletons/StudioDashboardSkeleton";
+import { CreditEconomicsManager } from "../../components/CreditEconomicsManager";
 
 export const Route = createFileRoute("/teachers/")({
   pendingComponent: StudioDashboardSkeleton,
@@ -162,6 +163,9 @@ function TeachersAdmin() {
             </Link>
           </Card>
         )}
+
+        {/* Fellow Credit Economics & Conversion Policy */}
+        <CreditEconomicsManager />
 
         <Box>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 2 }}>

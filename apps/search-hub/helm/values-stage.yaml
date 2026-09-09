@@ -1,0 +1,21 @@
+# Environment: staging
+replicaCount: 2
+
+ingress:
+  enabled: false
+  host: stage.search-hub.cohort.mesh
+
+resources:
+  requests:
+    cpu: 150m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1

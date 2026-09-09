@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "booking-hub.fullname" . }}-config
+  labels:
+    {{- include "booking-hub.labels" . | nindent 4 }}
+data:
+  PORT: {{ .Values.env.PORT | default "8004" | quote }}
+  DATABASE_URL: {{ .Values.env.DATABASE_URL | default "postgresql://temporal:temporal@postgres:5432/temporal" | quote }}
+  TEMPORAL_ADDRESS: {{ .Values.env.TEMPORAL_ADDRESS | default "temporal:7233" | quote }}

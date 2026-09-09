@@ -1,0 +1,48 @@
+FROM node:22-alpine
+
+# Install base dependencies and system utilities
+RUN apk add --no-cache \
+    bash \
+    curl \
+    git \
+    openssl \
+    ca-certificates \
+    tar \
+    gzip
+
+# Architecture-aware download for Helm 3 and Kubectl
+ARG TARGETARCH
+RUN ARCH="" && \
+    HOST_ARCH="${TARGETARCH:-$(uname -m)}" && \
+    case "$HOST_ARCH" in \
+      x86_64|amd64) ARCH="amd64" ;; \
+      aarch64|arm64) ARCH="arm64" ;; \
+      *) echo "Unsupported architecture: $HOST_ARCH"; exit 1 ;; \
+    esac && \
+    echo "Installing tools for architecture: $ARCH" && \
+    # Install Helm 3
+    HELM_VERSION="v3.17.1" && \
+    curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" | tar -zxv -C /tmp && \
+    mv "/tmp/linux-${ARCH}/helm" /usr/local/bin/helm && \
+    chmod +x /usr/local/bin/helm && \
+    rm -rf "/tmp/linux-${ARCH}" && \
+    # Install Kubectl
+    KUBECTL_VERSION="v1.32.2" && \
+    curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /usr/local/bin/kubectl && \
+    chmod +x /usr/local/bin/kubectl
+
+# Install pnpm and tsx globally
+RUN npm install -g pnpm@10.5.2 tsx@4.23.12
+
+# Create writable HOME for rootless/arbitrary UID execution
+ENV HOME=/tmp/home
+RUN mkdir -p /tmp/home && chmod -R 777 /tmp/home
+ENV PNPM_HOME=/tmp/home/.pnpm
+ENV PATH=$PNPM_HOME:$PATH
+ENV HELM_CACHE_HOME=/tmp/home/.cache/helm
+ENV HELM_CONFIG_HOME=/tmp/home/.config/helm
+ENV HELM_DATA_HOME=/tmp/home/.local/share/helm
+
+WORKDIR /workspace
+
+CMD ["/bin/bash"]

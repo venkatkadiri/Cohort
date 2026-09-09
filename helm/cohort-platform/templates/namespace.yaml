@@ -1,0 +1,10 @@
+{{- if .Values.global.createNamespace }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    cohort.mesh/environment: {{ .Values.global.environment }}
+    cohort.mesh/region: {{ .Values.global.region }}
+{{- end }}

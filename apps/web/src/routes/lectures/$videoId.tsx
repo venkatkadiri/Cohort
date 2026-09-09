@@ -25,9 +25,13 @@ import PlayCircleIcon from '@mui/icons-material/PlayCircle'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import LayersIcon from '@mui/icons-material/Layers'
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined'
+import BoltIcon from '@mui/icons-material/Bolt'
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents'
 
 import { getSessionFn } from '../../server/functions/auth.fn'
 import { CustomVideoPlayer } from '../../components/CustomVideoPlayer'
+import { useCredits } from '../../context'
+import { CreditProgressBar } from '../../components/CreditProgressBar'
 
 export const Route = createFileRoute('/lectures/$videoId')({
   loader: async ({ params }) => {
@@ -46,6 +50,7 @@ interface LessonModule {
   title: string
   lessonsCount: number
   hasAttachment?: boolean
+  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'masterclass'
   lessons: { id: string; title: string; duration: string; completed?: boolean }[]
 }
 
@@ -55,6 +60,7 @@ const SYLLABUS_MODULES: LessonModule[] = [
     number: 62,
     title: '[Netflix] HLS Adaptive Streaming | M3U8 | Multi-Bitrate Transcoding',
     lessonsCount: 7,
+    difficulty: 'advanced',
     lessons: [
       { id: 'l-62-1', title: 'Video Codecs & Bitrate Profiles (1080p, 720p, 480p, 360p)', duration: '14:20', completed: true },
       { id: 'l-62-2', title: 'FFmpeg Pipeline & Segment Chunking (.ts files)', duration: '18:45', completed: true },
@@ -67,6 +73,7 @@ const SYLLABUS_MODULES: LessonModule[] = [
     number: 63,
     title: '[Netflix] System Architecture & Video Chunk Ingestion',
     lessonsCount: 1,
+    difficulty: 'advanced',
     lessons: [
       { id: 'l-63-1', title: 'High-Throughput Upload Gateways & Streaming Buffers', duration: '28:10', completed: false },
     ],
@@ -76,6 +83,7 @@ const SYLLABUS_MODULES: LessonModule[] = [
     number: 64,
     title: '[Netflix] Setting up Adaptive Transcoding Pipelines',
     lessonsCount: 1,
+    difficulty: 'masterclass',
     lessons: [
       { id: 'l-64-1', title: 'Worker Threading & Distributed Transcode Jobs', duration: '35:00', completed: false },
     ],
@@ -85,6 +93,7 @@ const SYLLABUS_MODULES: LessonModule[] = [
     number: 65,
     title: '[Netflix] Workflow Fanout & Transcoding Workers',
     lessonsCount: 1,
+    difficulty: 'masterclass',
     lessons: [
       { id: 'l-65-1', title: 'Temporal Workflows for Distributed Video Processing', duration: '25:40', completed: false },
     ],
@@ -94,6 +103,7 @@ const SYLLABUS_MODULES: LessonModule[] = [
     number: 66,
     title: '[Netflix] Writing the HLS Streaming API Layer',
     lessonsCount: 1,
+    difficulty: 'intermediate',
     hasAttachment: true,
     lessons: [
       { id: 'l-66-1', title: 'Express & Apollo Server HLS Stream Controller', duration: '31:15', completed: false },
@@ -104,10 +114,15 @@ const SYLLABUS_MODULES: LessonModule[] = [
 function MasterclassPlayerPage() {
   const { session } = Route.useLoaderData()
   const isTeacher = !!session
+  const { earnXp, economicsConfig } = useCredits()
 
   const [activeLessonId, setActiveLessonId] = useState('l-62-1')
   const [activeTab, setActiveTab] = useState(0)
   const [syllabusSearch, setSyllabusSearch] = useState('')
+  const [completedLessons, setCompletedLessons] = useState<Record<string, boolean>>({
+    'l-62-1': true,
+    'l-62-2': true,
+  })
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
     'mod-62': true,
   })
@@ -151,6 +166,13 @@ function MasterclassPlayerPage() {
     setCommentInput('')
   }
 
+  const currentModule = useMemo(() => {
+    for (const mod of SYLLABUS_MODULES) {
+      if (mod.lessons.some((l) => l.id === activeLessonId)) return mod
+    }
+    return SYLLABUS_MODULES[0]
+  }, [activeLessonId])
+
   const currentLessonTitle = useMemo(() => {
     for (const mod of SYLLABUS_MODULES) {
       const found = mod.lessons.find((l) => l.id === activeLessonId)
@@ -159,33 +181,65 @@ function MasterclassPlayerPage() {
     return 'HLS Adaptive Streaming Masterclass'
   }, [activeLessonId])
 
+  const isCurrentCompleted = !!completedLessons[activeLessonId]
+
+  const handleCompleteLesson = () => {
+    const diffKey = currentModule.difficulty
+    const xpReward = economicsConfig.difficultyXp[diffKey] || 150
+
+    setCompletedLessons((prev) => ({ ...prev, [activeLessonId]: true }))
+    earnXp(xpReward, `Completed video lesson in ${currentModule.title}`, currentLessonTitle, diffKey)
+  }
+
   return (
     <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 4 } }}>
       <Stack spacing={3}>
-        {/* Navigation Bar */}
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link to="/lectures" style={{ textDecoration: 'none' }}>
-            <Button
-              variant="text"
-              size="small"
-              startIcon={<ArrowBackIcon />}
-              sx={{ color: 'text.secondary', fontWeight: 700 }}
-            >
-              Back to Lecture Vault
-            </Button>
-          </Link>
+        {/* Navigation Bar with Mini EXP & Credit Progress Pill */}
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <Link to="/lectures" style={{ textDecoration: 'none' }}>
+              <Button
+                variant="text"
+                size="small"
+                startIcon={<ArrowBackIcon />}
+                sx={{ color: 'text.secondary', fontWeight: 700 }}
+              >
+                Back to Lecture Vault
+              </Button>
+            </Link>
 
-          {isTeacher && (
-            <Link to="/teachers/lectures" style={{ textDecoration: 'none' }}>
+            <Link to="/leaderboard" style={{ textDecoration: 'none' }}>
               <Button
                 variant="outlined"
                 size="small"
-                sx={{ fontWeight: 700, borderRadius: 2 }}
+                startIcon={<EmojiEventsIcon sx={{ color: '#FF3E00' }} />}
+                sx={{
+                  fontWeight: 800,
+                  borderRadius: 2,
+                  borderColor: 'divider',
+                  fontSize: '0.72rem',
+                }}
               >
-                Teacher Studio
+                Live Leaderboard
               </Button>
             </Link>
-          )}
+          </Stack>
+
+          <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+            <CreditProgressBar compact />
+
+            {isTeacher && (
+              <Link to="/teachers/lectures" style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{ fontWeight: 700, borderRadius: 2 }}
+                >
+                  Teacher Studio
+                </Button>
+              </Link>
+            )}
+          </Stack>
         </Box>
 
         <Grid container spacing={3}>
@@ -208,24 +262,46 @@ function MasterclassPlayerPage() {
                 />
               </Card>
 
-              {/* Title & Metadata */}
+              {/* Title, EXP Bounty & Complete Action */}
               <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 2 }}>
                 <Box sx={{ flex: 1, minWidth: 260 }}>
                   <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '-0.01em' }}>
                     {currentLessonTitle}
                   </Typography>
-                  <Stack direction="row" spacing={2} sx={{ mt: 1, color: 'text.secondary', fontSize: '0.8rem', fontFamily: "'Fira Code', monospace" }}>
+                  <Stack direction="row" spacing={2} sx={{ mt: 1, color: 'text.secondary', fontSize: '0.8rem', fontFamily: "'Fira Code', monospace", flexWrap: 'wrap' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'success.main', fontWeight: 700 }}>
                       <VerifiedUserOutlinedIcon sx={{ fontSize: 16 }} /> Subscribed Access
                     </Box>
                     <span>•</span>
-                    <span>Instructor: Ada Lovelace</span>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, color: '#FF3E00', fontWeight: 800 }}>
+                      <BoltIcon sx={{ fontSize: 16 }} /> +{economicsConfig.difficultyXp[currentModule.difficulty]} EXP Bounty
+                    </Box>
                     <span>•</span>
                     <span>Track: Systems Architecture</span>
                   </Stack>
                 </Box>
 
-                <Stack direction="row" spacing={1}>
+                <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleCompleteLesson}
+                    disabled={isCurrentCompleted}
+                    startIcon={isCurrentCompleted ? <CheckCircleIcon /> : <BoltIcon />}
+                    sx={{
+                      fontWeight: 900,
+                      borderRadius: 2.5,
+                      px: 2.5,
+                      py: 1,
+                      background: isCurrentCompleted
+                        ? 'rgba(16, 185, 129, 0.2)'
+                        : 'linear-gradient(135deg, #FF3E00 0%, #FF0055 100%)',
+                      color: isCurrentCompleted ? '#10B981' : '#FFFFFF',
+                      boxShadow: isCurrentCompleted ? 'none' : '0 6px 20px rgba(255, 62, 0, 0.4)',
+                    }}
+                  >
+                    {isCurrentCompleted ? 'LESSON COMPLETED ✓' : `COMPLETE & CLAIM +${economicsConfig.difficultyXp[currentModule.difficulty]} EXP ⚡`}
+                  </Button>
+
                   <Button variant="outlined" size="small" startIcon={<ThumbUpOutlinedIcon fontSize="small" />} sx={{ borderRadius: 2, fontWeight: 700 }}>
                     142
                   </Button>
@@ -393,10 +469,14 @@ function MasterclassPlayerPage() {
                       Course Progress
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#FF3E00', fontWeight: 800, fontFamily: "'Fira Code', monospace" }}>
-                      31% (129 Lessons)
+                      {Object.keys(completedLessons).length} Lessons Completed
                     </Typography>
                   </Box>
-                  <LinearProgress variant="determinate" value={31} sx={{ height: 6, borderRadius: 1 }} />
+                  <LinearProgress
+                    variant="determinate"
+                    value={Math.round((Object.keys(completedLessons).length / 8) * 100)}
+                    sx={{ height: 6, borderRadius: 1 }}
+                  />
                 </Box>
 
                 <TextField
@@ -448,7 +528,7 @@ function MasterclassPlayerPage() {
                               {module.title}
                             </Typography>
                             <Typography variant="caption" sx={{ color: 'text.secondary', fontFamily: "'Fira Code', monospace", fontSize: '0.7rem' }}>
-                              {module.lessonsCount} lessons
+                              {module.lessonsCount} lessons · +{economicsConfig.difficultyXp[module.difficulty]} XP each
                             </Typography>
                           </Box>
                           <ExpandMoreIcon sx={{ transform: isExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
@@ -458,6 +538,8 @@ function MasterclassPlayerPage() {
                           <Box sx={{ p: 1, pt: 0, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                             {module.lessons.map((lesson) => {
                               const isActive = activeLessonId === lesson.id
+                              const isCompleted = !!completedLessons[lesson.id] || lesson.completed
+
                               return (
                                 <Box
                                   key={lesson.id}
@@ -475,7 +557,7 @@ function MasterclassPlayerPage() {
                                   }}
                                 >
                                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, pr: 1 }}>
-                                    {lesson.completed ? (
+                                    {isCompleted ? (
                                       <CheckCircleIcon sx={{ fontSize: 15, color: 'success.main' }} />
                                     ) : (
                                       <PlayCircleIcon sx={{ fontSize: 15, color: isActive ? '#FF3E00' : 'text.secondary' }} />

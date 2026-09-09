@@ -1,0 +1,45 @@
+replicaCount: 1
+
+image:
+  repository: cohort/web
+  tag: "1.0.0" # Target for CI/CD automated chore PRs
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 3000
+
+probes:
+  readinessPath: /health
+  livenessPath: /health
+
+env:
+  PORT: "3000"
+  NODE_ENV: "production"
+  DOMAIN_HUB_URL: "http://domain-hub:8000/graphql"
+
+ingress:
+  enabled: true
+  className: nginx
+  host: cohort.mesh
+  path: /
+  pathType: Prefix
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1

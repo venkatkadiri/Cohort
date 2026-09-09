@@ -3,6 +3,10 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 export type RoleType = 'ROOT' | 'ADMIN' | 'TEACHER' | 'STUDENT'
 
 export type FeatureKey =
+  | 'credit_store'
+  | 'live_leaderboard'
+  | 'xp_gamification'
+  | 'token_economics'
   | 'fellows_hub'
   | 'cohort_vault'
   | 'search_service'
@@ -18,10 +22,36 @@ export interface FeatureFlagMeta {
   key: FeatureKey
   name: string
   description: string
-  category: 'CORE' | 'VIDEO' | 'SCHEDULING' | 'ENGAGEMENT'
+  category: 'CREDITS_GAMIFICATION' | 'CORE' | 'VIDEO' | 'SCHEDULING' | 'ENGAGEMENT'
 }
 
 export const FEATURE_REGISTRY: FeatureFlagMeta[] = [
+  // CREDITS & GAMIFICATION
+  {
+    key: 'credit_store',
+    name: 'Cohort Credits Store & Top-Up',
+    description: 'Student storefront to purchase 1:1 office hours booking passes and XP boost overdrive packs.',
+    category: 'CREDITS_GAMIFICATION',
+  },
+  {
+    key: 'live_leaderboard',
+    name: 'Global Leaderboards & Real-Time Stream',
+    description: 'Boot.dev-style ranked fellowship mesh with live WebSocket learning activity feed.',
+    category: 'CREDITS_GAMIFICATION',
+  },
+  {
+    key: 'xp_gamification',
+    name: 'EXP Gamification & Badges Engine',
+    description: 'Watch rewards, level progression (Lvl 1-10), study streak multipliers, and celebration modals.',
+    category: 'CREDITS_GAMIFICATION',
+  },
+  {
+    key: 'token_economics',
+    name: 'Teacher Token Economics & Conversion Policy',
+    description: 'Instructor console for configuring XP conversion factor sliders and difficulty reward matrices.',
+    category: 'CREDITS_GAMIFICATION',
+  },
+
   // CORE
   {
     key: 'fellows_hub',
@@ -93,6 +123,10 @@ export const FEATURE_REGISTRY: FeatureFlagMeta[] = [
 
 export const DEFAULT_ROLE_FLAGS: Record<RoleType, Record<FeatureKey, boolean>> = {
   ROOT: {
+    credit_store: true,
+    live_leaderboard: true,
+    xp_gamification: true,
+    token_economics: true,
     fellows_hub: true,
     cohort_vault: true,
     search_service: true,
@@ -105,6 +139,10 @@ export const DEFAULT_ROLE_FLAGS: Record<RoleType, Record<FeatureKey, boolean>> =
     slot_requests: true,
   },
   ADMIN: {
+    credit_store: true,
+    live_leaderboard: true,
+    xp_gamification: true,
+    token_economics: true,
     fellows_hub: true,
     cohort_vault: true,
     search_service: true,
@@ -117,6 +155,10 @@ export const DEFAULT_ROLE_FLAGS: Record<RoleType, Record<FeatureKey, boolean>> =
     slot_requests: true,
   },
   TEACHER: {
+    credit_store: true,
+    live_leaderboard: true,
+    xp_gamification: true,
+    token_economics: true,
     fellows_hub: true,
     cohort_vault: true,
     search_service: true,
@@ -129,6 +171,10 @@ export const DEFAULT_ROLE_FLAGS: Record<RoleType, Record<FeatureKey, boolean>> =
     slot_requests: true,
   },
   STUDENT: {
+    credit_store: true,
+    live_leaderboard: true,
+    xp_gamification: true,
+    token_economics: false,
     fellows_hub: true,
     cohort_vault: true,
     search_service: true,

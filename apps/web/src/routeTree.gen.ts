@@ -13,8 +13,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LogoutRouteImport } from './routes/logout'
 import { Route as ConfigIndexRouteImport } from './routes/config/index'
+import { Route as CreditsIndexRouteImport } from './routes/credits/index'
+import { Route as CreditsBuyRouteImport } from './routes/credits/buy'
 import { Route as EnrollersIndexRouteImport } from './routes/enrollers/index'
 import { Route as EnrollersDashboardRouteImport } from './routes/enrollers/dashboard'
+import { Route as LeaderboardIndexRouteImport } from './routes/leaderboard/index'
 import { Route as LecturesIndexRouteImport } from './routes/lectures/index'
 import { Route as LecturesVideoIdRouteImport } from './routes/lectures/$videoId'
 import { Route as TeachersIndexRouteImport } from './routes/teachers/index'
@@ -52,6 +55,16 @@ const ConfigIndexRoute = ConfigIndexRouteImport.update({
   path: '/config/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreditsIndexRoute = CreditsIndexRouteImport.update({
+  id: '/credits/',
+  path: '/credits/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreditsBuyRoute = CreditsBuyRouteImport.update({
+  id: '/credits/buy',
+  path: '/credits/buy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnrollersIndexRoute = EnrollersIndexRouteImport.update({
   id: '/enrollers/',
   path: '/enrollers/',
@@ -60,6 +73,11 @@ const EnrollersIndexRoute = EnrollersIndexRouteImport.update({
 const EnrollersDashboardRoute = EnrollersDashboardRouteImport.update({
   id: '/enrollers/dashboard',
   path: '/enrollers/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardIndexRoute = LeaderboardIndexRouteImport.update({
+  id: '/leaderboard/',
+  path: '/leaderboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LecturesIndexRoute = LecturesIndexRouteImport.update({
@@ -154,12 +172,15 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/users/$userId': typeof UsersUserIdRouteRouteWithChildren
+  '/credits/buy': typeof CreditsBuyRoute
   '/enrollers/dashboard': typeof EnrollersDashboardRoute
   '/lectures/$videoId': typeof LecturesVideoIdRoute
   '/teachers/lectures': typeof TeachersLecturesRoute
   '/teachers/requests': typeof TeachersRequestsRoute
   '/config/': typeof ConfigIndexRoute
+  '/credits/': typeof CreditsIndexRoute
   '/enrollers/': typeof EnrollersIndexRoute
+  '/leaderboard/': typeof LeaderboardIndexRoute
   '/lectures/': typeof LecturesIndexRoute
   '/teachers/': typeof TeachersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -177,12 +198,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
+  '/credits/buy': typeof CreditsBuyRoute
   '/enrollers/dashboard': typeof EnrollersDashboardRoute
   '/lectures/$videoId': typeof LecturesVideoIdRoute
   '/teachers/lectures': typeof TeachersLecturesRoute
   '/teachers/requests': typeof TeachersRequestsRoute
   '/config': typeof ConfigIndexRoute
+  '/credits': typeof CreditsIndexRoute
   '/enrollers': typeof EnrollersIndexRoute
+  '/leaderboard': typeof LeaderboardIndexRoute
   '/lectures': typeof LecturesIndexRoute
   '/teachers': typeof TeachersIndexRoute
   '/users': typeof UsersIndexRoute
@@ -202,12 +226,15 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logout': typeof LogoutRoute
   '/users/$userId': typeof UsersUserIdRouteRouteWithChildren
+  '/credits/buy': typeof CreditsBuyRoute
   '/enrollers/dashboard': typeof EnrollersDashboardRoute
   '/lectures/$videoId': typeof LecturesVideoIdRoute
   '/teachers/lectures': typeof TeachersLecturesRoute
   '/teachers/requests': typeof TeachersRequestsRoute
   '/config/': typeof ConfigIndexRoute
+  '/credits/': typeof CreditsIndexRoute
   '/enrollers/': typeof EnrollersIndexRoute
+  '/leaderboard/': typeof LeaderboardIndexRoute
   '/lectures/': typeof LecturesIndexRoute
   '/teachers/': typeof TeachersIndexRoute
   '/users/': typeof UsersIndexRoute
@@ -228,12 +255,15 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/users/$userId'
+    | '/credits/buy'
     | '/enrollers/dashboard'
     | '/lectures/$videoId'
     | '/teachers/lectures'
     | '/teachers/requests'
     | '/config/'
+    | '/credits/'
     | '/enrollers/'
+    | '/leaderboard/'
     | '/lectures/'
     | '/teachers/'
     | '/users/'
@@ -251,12 +281,15 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/logout'
+    | '/credits/buy'
     | '/enrollers/dashboard'
     | '/lectures/$videoId'
     | '/teachers/lectures'
     | '/teachers/requests'
     | '/config'
+    | '/credits'
     | '/enrollers'
+    | '/leaderboard'
     | '/lectures'
     | '/teachers'
     | '/users'
@@ -275,12 +308,15 @@ export interface FileRouteTypes {
     | '/login'
     | '/logout'
     | '/users/$userId'
+    | '/credits/buy'
     | '/enrollers/dashboard'
     | '/lectures/$videoId'
     | '/teachers/lectures'
     | '/teachers/requests'
     | '/config/'
+    | '/credits/'
     | '/enrollers/'
+    | '/leaderboard/'
     | '/lectures/'
     | '/teachers/'
     | '/users/'
@@ -300,12 +336,15 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LogoutRoute: typeof LogoutRoute
   UsersUserIdRouteRoute: typeof UsersUserIdRouteRouteWithChildren
+  CreditsBuyRoute: typeof CreditsBuyRoute
   EnrollersDashboardRoute: typeof EnrollersDashboardRoute
   LecturesVideoIdRoute: typeof LecturesVideoIdRoute
   TeachersLecturesRoute: typeof TeachersLecturesRoute
   TeachersRequestsRoute: typeof TeachersRequestsRoute
   ConfigIndexRoute: typeof ConfigIndexRoute
+  CreditsIndexRoute: typeof CreditsIndexRoute
   EnrollersIndexRoute: typeof EnrollersIndexRoute
+  LeaderboardIndexRoute: typeof LeaderboardIndexRoute
   LecturesIndexRoute: typeof LecturesIndexRoute
   TeachersIndexRoute: typeof TeachersIndexRoute
   UsersIndexRoute: typeof UsersIndexRoute
@@ -343,6 +382,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ConfigIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/credits/': {
+      id: '/credits/'
+      path: '/credits'
+      fullPath: '/credits/'
+      preLoaderRoute: typeof CreditsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/credits/buy': {
+      id: '/credits/buy'
+      path: '/credits/buy'
+      fullPath: '/credits/buy'
+      preLoaderRoute: typeof CreditsBuyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/enrollers/': {
       id: '/enrollers/'
       path: '/enrollers'
@@ -355,6 +408,13 @@ declare module '@tanstack/react-router' {
       path: '/enrollers/dashboard'
       fullPath: '/enrollers/dashboard'
       preLoaderRoute: typeof EnrollersDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard/': {
+      id: '/leaderboard/'
+      path: '/leaderboard'
+      fullPath: '/leaderboard/'
+      preLoaderRoute: typeof LeaderboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lectures/': {
@@ -501,12 +561,15 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LogoutRoute: LogoutRoute,
   UsersUserIdRouteRoute: UsersUserIdRouteRouteWithChildren,
+  CreditsBuyRoute: CreditsBuyRoute,
   EnrollersDashboardRoute: EnrollersDashboardRoute,
   LecturesVideoIdRoute: LecturesVideoIdRoute,
   TeachersLecturesRoute: TeachersLecturesRoute,
   TeachersRequestsRoute: TeachersRequestsRoute,
   ConfigIndexRoute: ConfigIndexRoute,
+  CreditsIndexRoute: CreditsIndexRoute,
   EnrollersIndexRoute: EnrollersIndexRoute,
+  LeaderboardIndexRoute: LeaderboardIndexRoute,
   LecturesIndexRoute: LecturesIndexRoute,
   TeachersIndexRoute: TeachersIndexRoute,
   UsersIndexRoute: UsersIndexRoute,

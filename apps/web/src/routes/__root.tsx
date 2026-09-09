@@ -17,6 +17,7 @@ import Stack from "@mui/material/Stack";
 
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import { XpRewardCelebrationModal } from "../components/XpRewardCelebrationModal";
 import { AppProvider } from "../context";
 import { getQueryClient } from "../lib/queryClient";
 
@@ -156,6 +157,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             <Header />
             {children}
             <Footer />
+            <XpRewardCelebrationModal />
           </AppProvider>
           {import.meta.env.DEV && (
             <>

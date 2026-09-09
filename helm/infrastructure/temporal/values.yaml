@@ -1,0 +1,42 @@
+# Default base values for temporal
+server:
+  replicaCount: 1
+  image:
+    repository: temporalio/auto-setup
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    dbPort: "5432"
+    postgresUser: "temporal"
+    postgresPassword: "temporal"
+    postgresSeeds: "postgres"
+  service:
+    type: ClusterIP
+    port: 7233
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ui:
+  enabled: true
+  replicaCount: 1
+  image:
+    repository: temporalio/ui
+    tag: latest
+    pullPolicy: IfNotPresent
+  env:
+    corsOrigins: "http://localhost:3000"
+  service:
+    type: ClusterIP
+    port: 8080
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi

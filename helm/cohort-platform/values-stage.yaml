@@ -1,0 +1,147 @@
+# ==============================================================================
+# Cohort Platform Environment: stage (Staging Environment)
+# ==============================================================================
+global:
+  environment: stage
+  region: eu-west-1
+  domainSuffix: stage.cohort.mesh
+
+postgres:
+  replicaCount: 1
+  persistence:
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+
+temporal:
+  server:
+    replicaCount: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  ui:
+    replicaCount: 1
+
+elk:
+  elasticsearch:
+    replicaCount: 1
+    javaOpts: "-Xms1g -Xmx1g"
+    persistence:
+      size: 20Gi
+  logstash:
+    replicaCount: 1
+  kibana:
+    replicaCount: 1
+
+domain-hub:
+  replicaCount: 2
+  ingress:
+    enabled: true
+    host: api.stage.cohort.mesh
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+booking-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+notification-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+search-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+auth-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+video-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+configuration-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+web:
+  replicaCount: 2
+  ingress:
+    enabled: true
+    host: stage.cohort.mesh
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+leader-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+transaction-hub:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 150m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
