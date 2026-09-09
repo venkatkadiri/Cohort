@@ -175,7 +175,7 @@ FROM base AS builder
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
-COPY packages ./packages
+COPY observability ./observability
 COPY apps/${safeName} ./apps/${safeName}
 
 RUN pnpm --filter @cohort/${safeName}... install --frozen-lockfile

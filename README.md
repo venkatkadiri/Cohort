@@ -334,7 +334,7 @@ This setup allows the application to run as a set of Deployments and Services in
 - design-system/ — shared UI component library
 - k8s/ — Kubernetes manifests for base and overlays
 - monitoring/ — observability configuration
-- packages/observability/ — shared observability utilities or code
+- observability/ — shared observability utilities or code
 - docker/ — Docker build config
 - proto/ — protocol definitions
 - scripts/ — startup and orchestration helpers

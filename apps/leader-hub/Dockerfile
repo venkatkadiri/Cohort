@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
-COPY packages ./packages
+COPY observability ./observability
 COPY apps/leader-hub ./apps/leader-hub
 
 RUN pnpm --filter @cohort/leader-hub... install --frozen-lockfile

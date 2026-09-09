@@ -2,7 +2,7 @@ packages:
   - 'apps/*'
   - 'proto'
   - 'design-system'
-  - 'packages/*'
+  - 'observability'
 
 allowBuilds:
   '@apollo/protobufjs': true

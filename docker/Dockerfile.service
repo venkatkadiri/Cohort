@@ -16,8 +16,8 @@ WORKDIR /app
 # Copy root manifest files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 
-# Copy packages and service source
-COPY packages ./packages
+# Copy shared observability and service source
+COPY observability ./observability
 COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
 
 # Install dependencies and build

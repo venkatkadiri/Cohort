@@ -12,7 +12,7 @@ FROM base AS builder
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
-COPY packages ./packages
+COPY observability ./observability
 COPY apps/transaction-hub ./apps/transaction-hub
 
 RUN pnpm --filter @cohort/transaction-hub... install --frozen-lockfile
