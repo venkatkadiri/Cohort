@@ -1,0 +1,58 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cohort-environments
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: cohort-platform
+spec:
+  generators:
+    - list:
+        elements:
+          - env: dev-eu-west1
+            namespace: cohort-dev-eu-west1
+            valuesFile: values-dev-eu-west1.yaml
+            autoSync: true
+          - env: stage
+            namespace: cohort-stage
+            valuesFile: values-stage.yaml
+            autoSync: true
+          - env: prod
+            namespace: cohort-prod
+            valuesFile: values-prod.yaml
+            autoSync: true
+  template:
+    metadata:
+      name: 'cohort-{{env}}'
+      namespace: argocd
+      labels:
+        environment: '{{env}}'
+        app.kubernetes.io/part-of: cohort-platform
+      finalizers:
+        - resources-finalizer.argocd.argoproj.io
+    spec:
+      project: cohort-platform
+      source:
+        repoURL: 'https://github.com/venkatkadiri/Cohort.git'
+        targetRevision: HEAD
+        path: helm/cohort-platform
+        helm:
+          valueFiles:
+            - '{{valuesFile}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{namespace}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ApplyOutOfSyncOnly=true
+          - ServerSideApply=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

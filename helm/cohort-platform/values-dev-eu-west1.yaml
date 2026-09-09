@@ -31,7 +31,7 @@ temporal:
 elk:
   elasticsearch:
     replicaCount: 1
-    javaOpts: "-Xms384m -Xmx384m"
+    javaOpts: '-Xms384m -Xmx384m'
     persistence:
       size: 5Gi
   logstash:
@@ -145,3 +145,12 @@ transaction-hub:
       cpu: 250m
       memory: 128Mi
 
+# Multi-Environment UI Ingress Configuration for dev-eu-west1
+ingressUIs:
+  enabled: true
+  className: nginx
+  hosts:
+    web: app.dev.cohort.local
+    kibana: kibana.dev.cohort.local
+    temporal: temporal.dev.cohort.local
+    grafana: grafana.dev.cohort.local

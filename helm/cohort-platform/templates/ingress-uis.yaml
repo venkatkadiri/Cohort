@@ -1,0 +1,69 @@
+{{- if .Values.ingressUIs.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}-uis
+  labels:
+    app.kubernetes.io/name: {{ .Release.Name }}-uis
+    app.kubernetes.io/part-of: cohort-platform
+    environment: {{ .Values.global.environment }}
+  annotations:
+    kubernetes.io/ingress.class: {{ .Values.ingressUIs.className | default "nginx" | quote }}
+    {{- with .Values.ingressUIs.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  rules:
+    # 1. Web Application UI
+    - host: {{ .Values.ingressUIs.hosts.web | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-web
+                port:
+                  number: 3000
+
+    # 2. Kibana Observability UI
+    - host: {{ .Values.ingressUIs.hosts.kibana | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kibana
+                port:
+                  number: 5601
+
+    # 3. Temporal Workflow UI
+    - host: {{ .Values.ingressUIs.hosts.temporal | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-temporal-ui
+                port:
+                  number: 8080
+
+    # 4. Grafana Dashboards UI
+    - host: {{ .Values.ingressUIs.hosts.grafana | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}-grafana
+                port:
+                  number: 3000
+
+  {{- if .Values.ingressUIs.tls }}
+  tls:
+    {{- toYaml .Values.ingressUIs.tls | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -1,6 +1,6 @@
 name: Deploy.Application
 
-run-name: Deploy to ${{ inputs.override_envs || 'dev-eu-west1' }} ref ${{ inputs.override_target_revision || github.event.client_payload.ref || github.ref }}
+run-name: GitOps Deploy to ${{ inputs.override_envs || 'dev-eu-west1' }} ref ${{ inputs.override_target_revision || github.event.client_payload.ref || github.ref }}
 
 on:
   repository_dispatch:
@@ -32,7 +32,7 @@ defaults:
 
 jobs:
   parse-matrix:
-    name: Prepare Deployment Matrix
+    name: Prepare GitOps Matrix
     runs-on: ubuntu-latest
     outputs:
       environments: ${{ steps.set-matrix.outputs.envs }}
@@ -47,7 +47,7 @@ jobs:
           echo "envs=${ENVS}" >> $GITHUB_OUTPUT
 
   deploy:
-    name: Helm.Deploy
+    name: GitOps.ArgoCD.Deploy
     needs: parse-matrix
     runs-on: ubuntu-latest
     strategy:
@@ -78,42 +78,98 @@ jobs:
             dev|dev-eu-west1)
               echo "namespace=cohort-dev-eu-west1" >> $GITHUB_OUTPUT
               echo "values_file=helm/cohort-platform/values-dev-eu-west1.yaml" >> $GITHUB_OUTPUT
+              echo "app_name=cohort-dev-eu-west1" >> $GITHUB_OUTPUT
+              echo "host_prefix=dev" >> $GITHUB_OUTPUT
               ;;
             stage)
               echo "namespace=cohort-stage" >> $GITHUB_OUTPUT
               echo "values_file=helm/cohort-platform/values-stage.yaml" >> $GITHUB_OUTPUT
+              echo "app_name=cohort-stage" >> $GITHUB_OUTPUT
+              echo "host_prefix=stage" >> $GITHUB_OUTPUT
               ;;
             prod)
               echo "namespace=cohort-prod" >> $GITHUB_OUTPUT
               echo "values_file=helm/cohort-platform/values-prod.yaml" >> $GITHUB_OUTPUT
+              echo "app_name=cohort-prod" >> $GITHUB_OUTPUT
+              echo "host_prefix=prod" >> $GITHUB_OUTPUT
               ;;
             *)
               echo "namespace=cohort-${ENV_NAME}" >> $GITHUB_OUTPUT
               echo "values_file=helm/cohort-platform/values-${ENV_NAME}.yaml" >> $GITHUB_OUTPUT
+              echo "app_name=cohort-${ENV_NAME}" >> $GITHUB_OUTPUT
+              echo "host_prefix=${ENV_NAME}" >> $GITHUB_OUTPUT
               ;;
           esac
 
-      - name: Deploy via Helm 3
+      - name: Validate Declarative Manifests via Helm
         run: |
-          NAMESPACE="${{ steps.env-config.outputs.namespace }}"
           VALUES_FILE="${{ steps.env-config.outputs.values_file }}"
-          APP="${{ inputs.application_name || github.event.client_payload.service || 'all' }}"
+          echo "🔍 Linting and templating Helm charts for GitOps..."
+          helm template cohort-platform ./helm/cohort-platform \
+            -f "$VALUES_FILE" \
+            --namespace "${{ steps.env-config.outputs.namespace }}" > /dev/null
+          echo "✅ Helm template rendering passed."
 
-          echo "🚀 Deploying Application '$APP' to Environment '${{ matrix.env }}' (Namespace: $NAMESPACE)..."
-
-          if [ "$APP" == "all" ]; then
-            helm dependency update ./helm/cohort-platform
-            helm upgrade --install cohort-platform ./helm/cohort-platform \
-              -f "$VALUES_FILE" \
-              --namespace "$NAMESPACE" \
-              --create-namespace \
-              --dry-run
-          else
-            echo "Deploying specific service '$APP'..."
-            helm upgrade --install "$APP" "apps/${APP}/helm" \
-              -f "apps/${APP}/helm/values-${{ matrix.env }}.yaml" \
-              --namespace "$NAMESPACE" \
-              --create-namespace \
-              --dry-run
+      - name: Validate ArgoCD Application Manifest
+        run: |
+          APP_MANIFEST="argocd/applications/${{ matrix.env }}.yaml"
+          if [ -f "$APP_MANIFEST" ]; then
+            echo "🔍 Validating ArgoCD Application CRD ($APP_MANIFEST)..."
+            kubectl apply --dry-run=client -f "$APP_MANIFEST" || true
           fi
-          echo "✅ Deployment dry-run succeeded for ${{ matrix.env }}."
+
+      - name: Reconcile with ArgoCD GitOps
+        env:
+          ARGOCD_SERVER: ${{ secrets.ARGOCD_SERVER }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: |
+          APP_NAME="${{ steps.env-config.outputs.app_name }}"
+
+          if [ -n "$ARGOCD_SERVER" ] && [ -n "$ARGOCD_AUTH_TOKEN" ]; then
+            echo "🚀 Connecting to ArgoCD at $ARGOCD_SERVER..."
+            # Install ArgoCD CLI
+            curl -sSL -o /usr/local/bin/argocd "https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64"
+            chmod +x /usr/local/bin/argocd
+
+            echo "Triggering GitOps synchronization for Application '$APP_NAME'..."
+            argocd app sync "$APP_NAME" \
+              --server "$ARGOCD_SERVER" \
+              --auth-token "$ARGOCD_AUTH_TOKEN" \
+              --insecure \
+              --prune
+
+            echo "Waiting for Application '$APP_NAME' to reach Healthy state..."
+            argocd app wait "$APP_NAME" \
+              --server "$ARGOCD_SERVER" \
+              --auth-token "$ARGOCD_AUTH_TOKEN" \
+              --insecure \
+              --health \
+              --timeout 300
+          else
+            echo "ℹ️ ARGOCD_SERVER / ARGOCD_AUTH_TOKEN not set. Running in declarative GitOps verification mode."
+            echo "ArgoCD will automatically pull and reconcile git ref '${{ inputs.override_target_revision || github.ref }}'."
+          fi
+
+      - name: Publish GitOps Deployment Summary & UI Links
+        if: always()
+        run: |
+          HOST_PFX="${{ steps.env-config.outputs.host_prefix }}"
+          ENV_NAME="${{ matrix.env }}"
+
+          cat <<EOF >> $GITHUB_STEP_SUMMARY
+          ## 🚀 GitOps Deployment Summary: \`${ENV_NAME}\`
+
+          | Resource | Details |
+          | :--- | :--- |
+          | **Target Environment** | \`${ENV_NAME}\` |
+          | **Namespace** | \`${{ steps.env-config.outputs.namespace }}\` |
+          | **Git Revision** | \`${{ inputs.override_target_revision || github.ref }}\` |
+          | **ArgoCD Application** | \`${{ steps.env-config.outputs.app_name }}\` |
+
+          ### 🌐 Multi-Environment UI Dashboards
+          - 🐙 **ArgoCD UI**: [https://argocd.cohort.local](https://argocd.cohort.local) (or \`localhost:8080\`)
+          - 🖥️ **Web Application**: [http://app.${HOST_PFX}.cohort.local](http://app.${HOST_PFX}.cohort.local) (or \`localhost:3000\`)
+          - 📊 **Kibana Dashboard**: [http://kibana.${HOST_PFX}.cohort.local](http://kibana.${HOST_PFX}.cohort.local) (or \`localhost:5601\`)
+          - ⏳ **Temporal Workflows**: [http://temporal.${HOST_PFX}.cohort.local](http://temporal.${HOST_PFX}.cohort.local) (or \`localhost:8233\`)
+          - 📈 **Grafana Observability**: [http://grafana.${HOST_PFX}.cohort.local](http://grafana.${HOST_PFX}.cohort.local) (or \`localhost:3001\`)
+          EOF

@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: cohort-platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  description: Cohort Microservices Platform & Multi-Environment GitOps Project
+  # Permitted Git source repositories
+  sourceRepos:
+    - 'https://github.com/venkatkadiri/Cohort.git'
+    - 'https://github.com/venkatkadiri/Cohort'
+    - '*'
+
+  # Permitted destination clusters and namespaces
+  destinations:
+    - namespace: cohort-dev-eu-west1
+      server: https://kubernetes.default.svc
+      name: in-cluster
+    - namespace: cohort-stage
+      server: https://kubernetes.default.svc
+      name: in-cluster
+    - namespace: cohort-prod
+      server: https://kubernetes.default.svc
+      name: in-cluster
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+      name: in-cluster
+
+  # Allowed cluster-scoped resources
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+
+  # Allowed namespace-scoped resources (all standard workloads, networking, autoscaling)
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  # Roles & permissions
+  roles:
+    - name: ci-sync
+      description: Role for GitHub Actions CI/CD to trigger Application syncs
+      policies:
+        - p, proj:cohort-platform:ci-sync, applications, get, cohort-platform/*, allow
+        - p, proj:cohort-platform:ci-sync, applications, sync, cohort-platform/*, allow
+      groups:
+        - github-actions-ci

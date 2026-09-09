@@ -31,7 +31,7 @@ temporal:
 elk:
   elasticsearch:
     replicaCount: 1
-    javaOpts: "-Xms1g -Xmx1g"
+    javaOpts: '-Xms1g -Xmx1g'
     persistence:
       size: 20Gi
   logstash:
@@ -145,3 +145,12 @@ transaction-hub:
       cpu: 500m
       memory: 512Mi
 
+# Multi-Environment UI Ingress Configuration for stage
+ingressUIs:
+  enabled: true
+  className: nginx
+  hosts:
+    web: app.stage.cohort.local
+    kibana: kibana.stage.cohort.local
+    temporal: temporal.stage.cohort.local
+    grafana: grafana.stage.cohort.local

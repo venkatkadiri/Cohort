@@ -1,0 +1,66 @@
+# ==============================================================================
+# ArgoCD Helm Values (Targeting official argo/argo-cd chart)
+# ==============================================================================
+
+global:
+  domain: argocd.cohort.local
+
+server:
+  # Enable insecure mode when TLS is terminated at Ingress level
+  extraArgs:
+    - --insecure
+
+  service:
+    type: ClusterIP
+    servicePortHttp: 80
+    servicePortHttps: 443
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/backend-protocol: 'HTTP'
+    hostname: argocd.cohort.local
+    paths:
+      - /
+    pathType: Prefix
+
+  # Sized resource requests suitable for both Minikube dev and production
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+repoServer:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+applicationSet:
+  enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+
+configs:
+  params:
+    server.insecure: true
+
+  # Declare default Git repositories
+  repositories:
+    cohort-repo:
+      url: https://github.com/venkatkadiri/Cohort.git
+      type: git
+      name: cohort-platform

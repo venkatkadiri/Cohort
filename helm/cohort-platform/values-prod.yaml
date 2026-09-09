@@ -10,7 +10,7 @@ postgres:
   replicaCount: 1
   persistence:
     size: 100Gi
-    storageClass: "gp3"
+    storageClass: 'gp3'
   resources:
     requests:
       cpu: 1000m
@@ -36,7 +36,7 @@ elk:
   elasticsearch:
     replicaCount: 3
     discoveryType: multi-node
-    javaOpts: "-Xms4g -Xmx4g"
+    javaOpts: '-Xms4g -Xmx4g'
     persistence:
       size: 100Gi
     resources:
@@ -57,7 +57,7 @@ domain-hub:
     enabled: true
     host: api.cohort.mesh
     annotations:
-      kubernetes.io/tls-acme: "true"
+      kubernetes.io/tls-acme: 'true'
       cert-manager.io/cluster-issuer: letsencrypt-prod
   resources:
     requests:
@@ -189,7 +189,7 @@ web:
     enabled: true
     host: cohort.mesh
     annotations:
-      kubernetes.io/tls-acme: "true"
+      kubernetes.io/tls-acme: 'true'
       cert-manager.io/cluster-issuer: letsencrypt-prod
   resources:
     requests:
@@ -243,3 +243,22 @@ transaction-hub:
     enabled: true
     minAvailable: 2
 
+# Multi-Environment UI Ingress Configuration for prod
+ingressUIs:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: 'true'
+  hosts:
+    web: app.cohort.local
+    kibana: kibana.cohort.local
+    temporal: temporal.cohort.local
+    grafana: grafana.cohort.local
+  tls:
+    - secretName: cohort-prod-uis-tls
+      hosts:
+        - app.cohort.local
+        - kibana.cohort.local
+        - temporal.cohort.local
+        - grafana.cohort.local

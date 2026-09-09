@@ -42,3 +42,16 @@ leader-hub:
 
 transaction-hub:
   enabled: true
+
+# Multi-Environment UI Ingress Configuration
+ingressUIs:
+  enabled: true
+  className: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: '64m'
+  hosts:
+    web: app.cohort.local
+    kibana: kibana.cohort.local
+    temporal: temporal.cohort.local
+    grafana: grafana.cohort.local
+  tls: []

@@ -225,6 +225,45 @@ clean_env() {
   log_success "Cleaned up namespace '$NAMESPACE'."
 }
 
+install_argocd() {
+  check_minikube
+  check_kubectl
+  check_helm
+
+  log_info "Setting up ArgoCD GitOps in Minikube..."
+  $KUBECTL create namespace argocd --dry-run=client -o yaml | $KUBECTL apply -f -
+
+  log_info "Installing official ArgoCD via Helm..."
+  $HELM repo add argo https://argoproj.github.io/argo-helm 2>/dev/null || true
+  $HELM repo update argo 2>/dev/null || true
+  $HELM upgrade --install argo-cd argo/argo-cd \
+    --namespace argocd \
+    -f "${WORKSPACE_DIR}/argocd/install/values-argocd.yaml" || {
+      log_warn "Helm install from remote repo failed (network/offline). Falling back to declarative manifests..."
+      $KUBECTL apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml || true
+    }
+
+  log_info "Applying Cohort ArgoCD AppProject and ApplicationSet..."
+  $KUBECTL apply -f "${WORKSPACE_DIR}/argocd/appproject.yaml" || true
+  $KUBECTL apply -f "${WORKSPACE_DIR}/argocd/applicationset.yaml" || true
+
+  log_info "Waiting for ArgoCD server to become ready..."
+  $KUBECTL wait --for=condition=available --timeout=120s deployment/argo-cd-argocd-server -n argocd 2>/dev/null || true
+
+  local argocd_pass=$($KUBECTL -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" 2>/dev/null | base64 -d 2>/dev/null || echo "admin")
+  log_success "ArgoCD GitOps installed successfully!"
+  echo ""
+  echo -e "  🐙 ${BOLD}ArgoCD Dashboard:${NC}  http://localhost:8080 (or http://argocd.cohort.local with tunnel)"
+  echo -e "  👤 ${BOLD}Username:${NC}          admin"
+  echo -e "  🔑 ${BOLD}Password:${NC}          ${argocd_pass}"
+  echo ""
+  echo "To launch UI port-forwarding, run: ./scripts/open-uis.sh dev"
+}
+
+open_uis() {
+  "${WORKSPACE_DIR}/scripts/open-uis.sh" "${1:-dev}"
+}
+
 show_help() {
   cat <<EOF
 Cohort Platform Minikube Multi-Environment Orchestrator
@@ -235,6 +274,8 @@ Available Commands:
   stop                        Stop the running Minikube cluster
   build-images [service]      Build service Docker images directly into Minikube's daemon
   deploy <dev|stage|prod>     Deploy all platform microservices & infra to the target environment
+  argocd                      Install ArgoCD GitOps, apply AppProject & ApplicationSet, print credentials
+  uis [dev|stage|prod]        Open and port-forward all UIs (ArgoCD, Web, Kibana, Temporal, Grafana)
   status [dev|stage|prod|all] Show pods, services, ingresses, and HPAs
   tunnel                      Run minikube tunnel for local ingress routing
   hosts                       Show /etc/hosts entries mapping to Minikube IP
@@ -244,10 +285,9 @@ Available Commands:
 
 Examples:
   ./scripts/minikube.sh start
-  ./scripts/minikube.sh build-images
+  ./scripts/minikube.sh argocd
+  ./scripts/minikube.sh uis dev
   ./scripts/minikube.sh deploy dev
-  ./scripts/minikube.sh deploy stage
-  ./scripts/minikube.sh deploy prod
   ./scripts/minikube.sh status all
 EOF
 }
@@ -267,6 +307,12 @@ case "$CMD" in
     ;;
   deploy)
     deploy_env "$@"
+    ;;
+  argocd)
+    install_argocd
+    ;;
+  uis)
+    open_uis "$@"
     ;;
   status)
     show_status "$@"
