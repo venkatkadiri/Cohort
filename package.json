@@ -60,10 +60,20 @@
     "minikube:deploy:prod": "./scripts/minikube.sh deploy prod",
     "minikube:status": "./scripts/minikube.sh status",
     "minikube:tunnel": "./scripts/minikube.sh tunnel",
-    "minikube:clean": "./scripts/minikube.sh clean"
+    "minikube:clean": "./scripts/minikube.sh clean",
+    "tf:init:all": "./cohort-tools.sh tf:init:all",
+    "tf:validate:all": "./cohort-tools.sh tf:validate:all",
+    "tf:video:validate": "./cohort-tools.sh tf video-hub validate",
+    "tf:video:plan": "./cohort-tools.sh tf video-hub plan",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "deps:check": "depcheck --ignores='@types/*,tsx,typescript,prettier,depcheck'",
+    "lint:pr": "node scripts/lint-pr-title.js"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",
+    "depcheck": "^1.4.7",
+    "prettier": "^3.5.3",
     "tsx": "^4.23.12",
     "typescript": "^6.0.2"
   },

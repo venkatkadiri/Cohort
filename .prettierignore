@@ -1,0 +1,10 @@
+node_modules
+dist
+.tanstack
+*.gen.ts
+pnpm-lock.yaml
+.terraform
+*.lock.hcl
+helm/cohort-platform/charts
+helm/**/templates/**
+apps/**/helm/templates/**

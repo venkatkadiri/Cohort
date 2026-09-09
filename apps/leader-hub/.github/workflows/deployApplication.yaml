@@ -1,0 +1,98 @@
+name: leader-hub.Deploy.Application
+
+run-name: Deploy leader-hub to ${{ inputs.override_envs || 'dev-eu-west1' }}
+
+on:
+  repository_dispatch:
+    types:
+      - leader-hub-published
+      - artifacts-published
+
+  workflow_dispatch:
+    inputs:
+      override_envs:
+        required: true
+        default: '["dev-eu-west1"]'
+        description: 'Target environments (JSON array, e.g. ["dev-eu-west1","stage","prod"])'
+      override_regions:
+        required: false
+        default: '["eu-west-1"]'
+        description: 'Target regions (JSON array)'
+      override_target_revision:
+        required: true
+        default: main
+        description: 'Git ref to deploy'
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  parse-matrix:
+    name: Prepare Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.set-matrix.outputs.envs }}
+    steps:
+      - name: Parse Environments
+        id: set-matrix
+        run: |
+          ENVS='${{ inputs.override_envs }}'
+          if [ -z "$ENVS" ] || [ "$ENVS" == "[]" ]; then
+            ENVS='["dev-eu-west1"]'
+          fi
+          echo "envs=${ENVS}" >> $GITHUB_OUTPUT
+
+  deploy:
+    name: Helm.Deploy
+    needs: parse-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: ${{ fromJson(needs.parse-matrix.outputs.environments) }}
+    steps:
+      - name: Checkout Target Revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.override_target_revision || github.ref }}
+
+      - name: Set up Helm 3
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.17.1
+
+      - name: Set Environment Configuration
+        id: env-config
+        run: |
+          ENV_NAME="${{ matrix.env }}"
+          case "$ENV_NAME" in
+            dev|dev-eu-west1)
+              echo "namespace=cohort-dev-eu-west1" >> $GITHUB_OUTPUT
+              echo "values_file=apps/leader-hub/helm/values-dev-eu-west1.yaml" >> $GITHUB_OUTPUT
+              ;;
+            stage)
+              echo "namespace=cohort-stage" >> $GITHUB_OUTPUT
+              echo "values_file=apps/leader-hub/helm/values-stage.yaml" >> $GITHUB_OUTPUT
+              ;;
+            prod)
+              echo "namespace=cohort-prod" >> $GITHUB_OUTPUT
+              echo "values_file=apps/leader-hub/helm/values-prod.yaml" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "namespace=cohort-${ENV_NAME}" >> $GITHUB_OUTPUT
+              echo "values_file=apps/leader-hub/helm/values-${ENV_NAME}.yaml" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Deploy Package Helm Chart
+        run: |
+          NAMESPACE="${{ steps.env-config.outputs.namespace }}"
+          VALUES_FILE="${{ steps.env-config.outputs.values_file }}"
+          
+          echo "🚀 Deploying leader-hub to ${{ matrix.env }}..."
+          helm upgrade --install leader-hub "apps/leader-hub/helm" \
+            -f "$VALUES_FILE" \
+            --namespace "$NAMESPACE" \
+            --create-namespace \
+            --dry-run

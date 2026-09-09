@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "commitMessagePrefix": "chore",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "semanticCommitType": "chore",
+      "commitMessageTopic": "{{depName}}"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["^apps/[^/]+/helm/values\\.yaml$"],
+      "matchStrings": ["tag:\\s*\"?(?<currentValue>[\\w\\.\\-]+)\"?\\s*# Target for CI/CD"],
+      "depNameTemplate": "helm-image-tag",
+      "datasourceTemplate": "docker"
+    }
+  ]
+}

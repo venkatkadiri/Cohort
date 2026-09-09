@@ -1,0 +1,22 @@
+{
+  "group-pull-request-title-pattern": "chore${scope}: release",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "package-name": "web",
+      "component": "web",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "helm/Chart.yaml"
+        }
+      ]
+    }
+  }
+}

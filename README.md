@@ -407,6 +407,24 @@ To test and run the full platform locally across environments (`dev-eu-west1`, `
 ./scripts/minikube.sh clean dev
 ```
 
+## Package-Owned Azure Terraform Infrastructure (With Versioning)
+
+Every service in the monorepo owns its own dedicated Azure Terraform configuration under `apps/<service>/terraform/`. This design enables cloud infrastructure to evolve alongside service versions independently (for example, `video-hub` v0.0.1 using filesystem storage vs. v0.0.2 provisioning an Azure Storage Account and Blob Container).
+
+```bash
+# Validate Terraform configurations across all 10 packages
+./cohort-tools.sh tf:validate:all
+# or: pnpm tf:validate:all
+
+# Run Terraform commands for a specific package
+./cohort-tools.sh tf video-hub validate
+./cohort-tools.sh tf video-hub plan
+./cohort-tools.sh tf domain-hub plan
+
+# When scaffolding a new service, Terraform configs are created automatically:
+./cohort-tools.sh scaffold analytics-hub 8009
+```
+
 ## Summary
 
 Cohort is designed as a modular, service-oriented platform where:

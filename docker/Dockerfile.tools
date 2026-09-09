@@ -8,9 +8,10 @@ RUN apk add --no-cache \
     openssl \
     ca-certificates \
     tar \
-    gzip
+    gzip \
+    unzip
 
-# Architecture-aware download for Helm 3 and Kubectl
+# Architecture-aware download for Helm 3, Kubectl, and Terraform
 ARG TARGETARCH
 RUN ARCH="" && \
     HOST_ARCH="${TARGETARCH:-$(uname -m)}" && \
@@ -29,7 +30,13 @@ RUN ARCH="" && \
     # Install Kubectl
     KUBECTL_VERSION="v1.32.2" && \
     curl -fsSL "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/${ARCH}/kubectl" -o /usr/local/bin/kubectl && \
-    chmod +x /usr/local/bin/kubectl
+    chmod +x /usr/local/bin/kubectl && \
+    # Install Terraform
+    TERRAFORM_VERSION="1.10.5" && \
+    curl -fsSL "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_${ARCH}.zip" -o /tmp/terraform.zip && \
+    unzip /tmp/terraform.zip -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/terraform && \
+    rm -f /tmp/terraform.zip
 
 # Install pnpm and tsx globally
 RUN npm install -g pnpm@10.5.2 tsx@4.23.12

@@ -1,0 +1,205 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "group-pull-request-title-pattern": "chore${scope}: release",
+  "release-type": "simple",
+  "include-component-in-tag": false,
+  "packages": {
+    "apps/domain-hub": {
+      "package-name": "domain-hub",
+      "component": "domain-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/domain-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/domain-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/booking-hub": {
+      "package-name": "booking-hub",
+      "component": "booking-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/booking-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/booking-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/notification-hub": {
+      "package-name": "notification-hub",
+      "component": "notification-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/notification-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/notification-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/search-hub": {
+      "package-name": "search-hub",
+      "component": "search-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/search-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/search-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/auth-hub": {
+      "package-name": "auth-hub",
+      "component": "auth-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/auth-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/auth-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/video-hub": {
+      "package-name": "video-hub",
+      "component": "video-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/video-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/video-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/configuration-hub": {
+      "package-name": "configuration-hub",
+      "component": "configuration-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/configuration-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/configuration-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/leader-hub": {
+      "package-name": "leader-hub",
+      "component": "leader-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/leader-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/leader-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/transaction-hub": {
+      "package-name": "transaction-hub",
+      "component": "transaction-hub",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/transaction-hub/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/transaction-hub/helm/Chart.yaml"
+        }
+      ]
+    },
+    "apps/web": {
+      "package-name": "web",
+      "component": "web",
+      "changelog-path": "CHANGELOG.md",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "apps/web/helm/values.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "apps/web/helm/Chart.yaml"
+        }
+      ]
+    }
+  },
+  "changelog-sections": [
+    {
+      "type": "feat",
+      "section": "Features"
+    },
+    {
+      "type": "feature",
+      "section": "Features"
+    },
+    {
+      "type": "fix",
+      "section": "Bug Fixes"
+    },
+    {
+      "type": "perf",
+      "section": "Performance Improvements"
+    },
+    {
+      "type": "revert",
+      "section": "Reverts"
+    },
+    {
+      "type": "docs",
+      "section": "Documentation",
+      "hidden": false
+    },
+    {
+      "type": "chore",
+      "section": "Miscellaneous Chores",
+      "hidden": true
+    },
+    {
+      "type": "refactor",
+      "section": "Code Refactoring",
+      "hidden": false
+    },
+    {
+      "type": "test",
+      "section": "Tests",
+      "hidden": true
+    },
+    {
+      "type": "ci",
+      "section": "Continuous Integration",
+      "hidden": true
+    }
+  ]
+}

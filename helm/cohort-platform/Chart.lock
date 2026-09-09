@@ -39,4 +39,4 @@ dependencies:
   repository: file://../../apps/transaction-hub/helm
   version: 1.0.0
 digest: sha256:9d5b23fe3fe22030b621ef70971278d64add4309345a8770e7da6f787163ce50
-generated: "2026-09-09T15:18:35.226949+05:30"
+generated: "2026-09-09T16:37:00.715378+05:30"
