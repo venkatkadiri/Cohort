@@ -16,7 +16,7 @@ const safeName = serviceName
   .replace(/[^a-z0-9-]+/g, '-')
   .toLowerCase()
 const packageName = `@cohort/${safeName}`
-const targetDir = resolve(process.cwd(), 'apps', safeName)
+const targetDir = resolve(process.cwd(), 'hubs', safeName)
 
 if (existsSync(targetDir)) {
   console.error(`Service already exists at ${targetDir}`)
@@ -176,7 +176,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 COPY observability ./observability
-COPY apps/${safeName} ./apps/${safeName}
+COPY hubs/${safeName} ./hubs/${safeName}
 
 RUN pnpm --filter @cohort/${safeName}... install --frozen-lockfile
 RUN pnpm --filter @cohort/${safeName} build
@@ -189,10 +189,10 @@ ENV PORT=${customPort}
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nodejs
 
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${safeName}/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${safeName}/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${safeName}/package.json ./package.json
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${safeName}/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${safeName}/node_modules ./apps/${safeName}/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${safeName}/node_modules ./hubs/${safeName}/node_modules
 
 USER nodejs
 
@@ -201,7 +201,7 @@ CMD ["node", "dist/index.js"]
 `
 writeFileSync(resolve(targetDir, 'Dockerfile'), dockerfile)
 
-// 4. Create Dedicated Helm 3 Chart directly inside the package (apps/<name>/helm)
+// 4. Create Dedicated Helm 3 Chart directly inside the package (hubs/<name>/helm)
 const chartDir = resolve(targetDir, 'helm')
 const templatesDir = resolve(chartDir, 'templates')
 mkdirSync(templatesDir, { recursive: true })
@@ -492,7 +492,7 @@ if (existsSync(umbrellaChartPath)) {
   if (!content.includes(`name: ${safeName}`)) {
     content += `  - name: ${safeName}
     version: 1.0.0
-    repository: "file://../../apps/${safeName}/helm"
+    repository: "file://../../hubs/${safeName}/helm"
 `
     writeFileSync(umbrellaChartPath, content)
     console.log(`Registered ${safeName} in helm/cohort-platform/Chart.yaml dependencies`)
@@ -516,7 +516,7 @@ try {
   console.log(`Updated Helm dependency cache in helm/cohort-platform`)
 } catch {}
 
-// 8. Generate Package-Owned Azure Terraform Infrastructure (apps/<safeName>/terraform/)
+// 8. Generate Package-Owned Azure Terraform Infrastructure (hubs/<safeName>/terraform/)
 const serviceTerraformDir = resolve(targetDir, 'terraform')
 mkdirSync(serviceTerraformDir, { recursive: true })
 
@@ -680,7 +680,7 @@ storage_backend     = "filesystem"
 writeFileSync(resolve(serviceTerraformDir, 'terraform.tfvars'), tfVars)
 console.log(`Created package Azure Terraform configuration at: ${serviceTerraformDir}`)
 
-// 9. Generate Package-Owned GitHub CI/CD Workflows (apps/<safeName>/.github/)
+// 9. Generate Package-Owned GitHub CI/CD Workflows (hubs/<safeName>/.github/)
 const pkgGithubWorkflowsDir = resolve(targetDir, '.github', 'workflows')
 mkdirSync(pkgGithubWorkflowsDir, { recursive: true })
 
@@ -703,7 +703,7 @@ on:
     branches:
       - main
     paths:
-      - 'apps/${safeName}/**'
+      - 'hubs/${safeName}/**'
 
 defaults:
   run:
@@ -732,8 +732,8 @@ jobs:
           IMAGE_NAME="\${REGISTRY}/\${REPO_OWNER}/${safeName}"
           
           VERSION=""
-          if [ -f "apps/${safeName}/helm/values.yaml" ]; then
-            VERSION=$(grep -E '^\\s*tag:' "apps/${safeName}/helm/values.yaml" | awk '{print $2}' | tr -d '"' || true)
+          if [ -f "hubs/${safeName}/helm/values.yaml" ]; then
+            VERSION=$(grep -E '^\\s*tag:' "hubs/${safeName}/helm/values.yaml" | awk '{print $2}' | tr -d '"' || true)
           fi
           
           TAG="\${{ inputs.image_tag }}"
@@ -756,7 +756,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/${safeName}/Dockerfile
+          file: hubs/${safeName}/Dockerfile
           push: \${{ github.event_name != 'pull_request' }}
           tags: |
             \${{ steps.meta.outputs.image_name }}:\${{ steps.meta.outputs.tag }}
@@ -838,19 +838,19 @@ jobs:
           case "$ENV_NAME" in
             dev|dev-eu-west1)
               echo "namespace=cohort-dev-eu-west1" >> $GITHUB_OUTPUT
-              echo "values_file=apps/${safeName}/helm/values-dev-eu-west1.yaml" >> $GITHUB_OUTPUT
+              echo "values_file=hubs/${safeName}/helm/values-dev-eu-west1.yaml" >> $GITHUB_OUTPUT
               ;;
             stage)
               echo "namespace=cohort-stage" >> $GITHUB_OUTPUT
-              echo "values_file=apps/${safeName}/helm/values-stage.yaml" >> $GITHUB_OUTPUT
+              echo "values_file=hubs/${safeName}/helm/values-stage.yaml" >> $GITHUB_OUTPUT
               ;;
             prod)
               echo "namespace=cohort-prod" >> $GITHUB_OUTPUT
-              echo "values_file=apps/${safeName}/helm/values-prod.yaml" >> $GITHUB_OUTPUT
+              echo "values_file=hubs/${safeName}/helm/values-prod.yaml" >> $GITHUB_OUTPUT
               ;;
             *)
               echo "namespace=cohort-\${ENV_NAME}" >> $GITHUB_OUTPUT
-              echo "values_file=apps/${safeName}/helm/values-\${ENV_NAME}.yaml" >> $GITHUB_OUTPUT
+              echo "values_file=hubs/${safeName}/helm/values-\${ENV_NAME}.yaml" >> $GITHUB_OUTPUT
               ;;
           esac
 
@@ -860,7 +860,7 @@ jobs:
           VALUES_FILE="\${{ steps.env-config.outputs.values_file }}"
           
           echo "🚀 Deploying ${safeName} to \${{ matrix.env }}..."
-          helm upgrade --install ${safeName} "apps/${safeName}/helm" \\
+          helm upgrade --install ${safeName} "hubs/${safeName}/helm" \\
             -f "$VALUES_FILE" \\
             --namespace "$NAMESPACE" \\
             --create-namespace \\
@@ -900,38 +900,38 @@ console.log(`Created package GitHub CI/CD workflows at: ${pkgGithubWorkflowsDir}
 const rootReleaseConfigPath = resolve(process.cwd(), '.release-please-config.json')
 if (existsSync(rootReleaseConfigPath)) {
   const rootConfig = JSON.parse(readFileSync(rootReleaseConfigPath, 'utf-8'))
-  if (!rootConfig.packages[`apps/${safeName}`]) {
-    rootConfig.packages[`apps/${safeName}`] = {
+  if (!rootConfig.packages[`hubs/${safeName}`]) {
+    rootConfig.packages[`hubs/${safeName}`] = {
       'package-name': safeName,
       component: safeName,
       'changelog-path': 'CHANGELOG.md',
       'extra-files': [
         {
           type: 'generic',
-          path: `apps/${safeName}/helm/values.yaml`,
+          path: `hubs/${safeName}/helm/values.yaml`,
         },
         {
           type: 'generic',
-          path: `apps/${safeName}/helm/Chart.yaml`,
+          path: `hubs/${safeName}/helm/Chart.yaml`,
         },
       ],
     }
     writeFileSync(rootReleaseConfigPath, JSON.stringify(rootConfig, null, 2) + '\n')
-    console.log(`Registered apps/${safeName} in .release-please-config.json`)
+    console.log(`Registered hubs/${safeName} in .release-please-config.json`)
   }
 }
 
 const rootReleaseManifestPath = resolve(process.cwd(), '.release-please-manifest.json')
 if (existsSync(rootReleaseManifestPath)) {
   const rootManifest = JSON.parse(readFileSync(rootReleaseManifestPath, 'utf-8'))
-  if (!rootManifest[`apps/${safeName}`]) {
-    rootManifest[`apps/${safeName}`] = '0.1.0'
+  if (!rootManifest[`hubs/${safeName}`]) {
+    rootManifest[`hubs/${safeName}`] = '0.1.0'
     writeFileSync(rootReleaseManifestPath, JSON.stringify(rootManifest, null, 2) + '\n')
-    console.log(`Registered apps/${safeName} in .release-please-manifest.json`)
+    console.log(`Registered hubs/${safeName} in .release-please-manifest.json`)
   }
 }
 
-// 10. Generate Package README with Best Practices (apps/<safeName>/README.md)
+// 10. Generate Package README with Best Practices (hubs/<safeName>/README.md)
 const readmeContent = `# ${safeName}
 
 Microservice component of the Cohort platform responsible for ${safeName} operations.
@@ -939,7 +939,7 @@ Microservice component of the Cohort platform responsible for ${safeName} operat
 ---
 
 ## 📌 Service Specifications
-- **Package Location**: \`apps/${safeName}\`
+- **Package Location**: \`hubs/${safeName}\`
 - **HTTP Port**: \`:${customPort}\`
 - **Health Check**: \`http://localhost:${customPort}/health\`
 - **Prometheus Metrics**: \`http://localhost:${customPort}/metrics\`
@@ -963,7 +963,7 @@ pnpm --filter @cohort/${safeName} build
 ### 2. Docker Containerization
 \`\`\`bash
 # Build Docker image
-docker build -f apps/${safeName}/Dockerfile -t ${safeName}:latest .
+docker build -f hubs/${safeName}/Dockerfile -t ${safeName}:latest .
 
 # Run container locally
 docker run -p ${customPort}:${customPort} ${safeName}:latest
@@ -1025,7 +1025,7 @@ pnpm --filter @cohort/${safeName} typecheck
 
 ## ☁️ Azure Terraform Infrastructure Best Practices
 
-The cloud infrastructure for this package is self-contained under \`apps/${safeName}/terraform/\`.
+The cloud infrastructure for this package is self-contained under \`hubs/${safeName}/terraform/\`.
 
 ### 1. Version-Driven Infrastructure Evolution
 - **Version Tracking**: The \`service_version\` variable in \`terraform.tfvars\` tracks the release version.
@@ -1044,7 +1044,7 @@ The cloud infrastructure for this package is self-contained under \`apps/${safeN
 
 ## ⚓ Helm 3 & Kubernetes Deployment
 
-Package-level Helm charts are maintained at \`apps/${safeName}/helm/\`:
+Package-level Helm charts are maintained at \`hubs/${safeName}/helm/\`:
 - \`values.yaml\`: Base settings with \`image.tag\` (updated automatically by GitOps chore PRs).
 - \`values-dev-eu-west1.yaml\`: Dev environment parameters.
 - \`values-stage.yaml\`: Staging parameters.
@@ -1073,7 +1073,7 @@ Package-level Helm charts are maintained at \`apps/${safeName}/helm/\`:
 
 ## 🚀 CI/CD & Automated Release Workflows
 
-The package includes dedicated pipelines under \`apps/${safeName}/.github/\`:
+The package includes dedicated pipelines under \`hubs/${safeName}/.github/\`:
 1. **\`workflows/releaseApplication.yaml\`**: Builds and pushes Docker images to container registry without JFrog.
 2. **\`workflows/deployApplication.yaml\`**: Deploys the package's Helm chart across environments and regions.
 3. **Renovate & Release-Please Chore PRs**: Opens chore PRs titled \`chore(${safeName}): release\` that bump the version and update Helm values.
@@ -1090,5 +1090,5 @@ console.log(`Created GitHub CI/CD workflows at: ${pkgGithubWorkflowsDir}`)
 console.log(`Created best practices README at: ${resolve(targetDir, 'README.md')}`)
 console.log(`Next steps:`)
 console.log(`  1. pnpm install`)
-console.log(`  2. pnpm --dir apps/${safeName} dev`)
+console.log(`  2. pnpm --dir hubs/${safeName} dev`)
 console.log(`=============================================================\n`)

@@ -84,7 +84,7 @@ flowchart TB
 
 ### 1. Frontend: web
 
-Location: apps/web
+Location: hubs/web
 
 This is the main browser-facing application. It is exposed through the Kubernetes ingress and communicates primarily with the domain hub. The frontend is responsible for user flows, UI rendering, and calling orchestration APIs that trigger downstream services.
 
@@ -97,7 +97,7 @@ Responsibilities:
 
 ### 2. Domain orchestration layer: domain-hub
 
-Location: apps/domain-hub
+Location: hubs/domain-hub
 
 This is the central coordination service. It acts as the primary API gateway for the platform and orchestrates calls to the specialized spoke services:
 
@@ -119,7 +119,7 @@ Responsibilities:
 
 ### 3. Booking service: booking-hub
 
-Location: apps/booking-hub
+Location: hubs/booking-hub
 
 Handles booking and scheduling workflows. It exposes its own HTTP and gRPC interface and participates in orchestration via the domain hub and workflow engine.
 
@@ -131,7 +131,7 @@ Responsibilities:
 
 ### 4. Notification service: notification-hub
 
-Location: apps/notification-hub
+Location: hubs/notification-hub
 
 Responsible for customer and platform notifications, such as email, push, or messaging events triggered by business workflows.
 
@@ -143,7 +143,7 @@ Responsibilities:
 
 ### 5. Search service: search-hub
 
-Location: apps/search-hub
+Location: hubs/search-hub
 
 Provides searching and indexing capabilities. It is used by the domain layer for retrieval, discovery, and related query operations.
 
@@ -155,7 +155,7 @@ Responsibilities:
 
 ### 6. Authentication service: auth-hub
 
-Location: apps/auth-hub
+Location: hubs/auth-hub
 
 Owns authentication and authorization concerns. It provides secure identity-related operations for the overall platform.
 
@@ -167,7 +167,7 @@ Responsibilities:
 
 ### 7. Video service: video-hub
 
-Location: apps/video-hub
+Location: hubs/video-hub
 
 Handles video-related capabilities such as media processing, video endpoints, or streaming-specific backend tasks.
 
@@ -179,7 +179,7 @@ Responsibilities:
 
 ### 8. Configuration service: configuration-hub
 
-Location: apps/configuration-hub
+Location: hubs/configuration-hub
 
 Provides centralized configuration and platform settings. This service allows the platform to manage runtime configuration in a decoupled way.
 
@@ -330,7 +330,7 @@ This setup allows the application to run as a set of Deployments and Services in
 
 ## Repository Structure
 
-- apps/ — application services and frontend modules
+- hubs/ — application services and frontend modules
 - design-system/ — shared UI component library
 - k8s/ — Kubernetes manifests for base and overlays
 - monitoring/ — observability configuration
@@ -409,7 +409,7 @@ To test and run the full platform locally across environments (`dev-eu-west1`, `
 
 ## Package-Owned Azure Terraform Infrastructure (With Versioning)
 
-Every service in the monorepo owns its own dedicated Azure Terraform configuration under `apps/<service>/terraform/`. This design enables cloud infrastructure to evolve alongside service versions independently (for example, `video-hub` v0.0.1 using filesystem storage vs. v0.0.2 provisioning an Azure Storage Account and Blob Container).
+Every service in the monorepo owns its own dedicated Azure Terraform configuration under `hubs/<service>/terraform/`. This design enables cloud infrastructure to evolve alongside service versions independently (for example, `video-hub` v0.0.1 using filesystem storage vs. v0.0.2 provisioning an Azure Storage Account and Blob Container).
 
 ```bash
 # Validate Terraform configurations across all 10 packages

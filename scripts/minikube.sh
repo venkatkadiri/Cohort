@@ -125,8 +125,8 @@ build_images() {
   fi
 
   for svc in "${services[@]}"; do
-    local dockerfile="${WORKSPACE_DIR}/apps/${svc}/Dockerfile"
-    local values_file="${WORKSPACE_DIR}/apps/${svc}/helm/values.yaml"
+    local dockerfile="${WORKSPACE_DIR}/hubs/${svc}/Dockerfile"
+    local values_file="${WORKSPACE_DIR}/hubs/${svc}/helm/values.yaml"
     if [ ! -f "$dockerfile" ]; then
       log_warn "No Dockerfile found for '$svc' at $dockerfile. Skipping."
       continue

@@ -34,7 +34,7 @@ on:
     branches:
       - main
     paths:
-      - 'apps/**'
+      - 'hubs/**'
 
 defaults:
   run:
@@ -89,8 +89,8 @@ jobs:
 
           # Read package version from values.yaml or package.json
           VERSION=""
-          if [ -f "apps/${SERVICE}/helm/values.yaml" ]; then
-            VERSION=$(grep -E '^\s*tag:' "apps/${SERVICE}/helm/values.yaml" | awk '{print $2}' | tr -d '"' || true)
+          if [ -f "hubs/${SERVICE}/helm/values.yaml" ]; then
+            VERSION=$(grep -E '^\s*tag:' "hubs/${SERVICE}/helm/values.yaml" | awk '{print $2}' | tr -d '"' || true)
           fi
 
           TAG="${{ inputs.image_tag }}"
@@ -113,7 +113,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/${{ matrix.service }}/Dockerfile
+          file: hubs/${{ matrix.service }}/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ steps.meta.outputs.image_name }}:${{ steps.meta.outputs.tag }}

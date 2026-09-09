@@ -9,7 +9,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 COPY observability ./observability
-COPY apps/web ./apps/web
+COPY hubs/web ./hubs/web
 
 RUN pnpm --filter @cohort/web... install --frozen-lockfile
 RUN pnpm --filter @cohort/web generate-routes
@@ -22,10 +22,10 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nodejs
 
-COPY --from=builder --chown=nodejs:nodejs /app/apps/web/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/apps/web/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/web/package.json ./package.json
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/web/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/apps/web/node_modules ./apps/web/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/web/node_modules ./hubs/web/node_modules
 
 USER nodejs
 

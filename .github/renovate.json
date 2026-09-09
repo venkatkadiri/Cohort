@@ -14,7 +14,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "fileMatch": ["^apps/[^/]+/helm/values\\.yaml$"],
+      "fileMatch": ["^hubs/[^/]+/helm/values\\.yaml$"],
       "matchStrings": ["tag:\\s*\"?(?<currentValue>[\\w\\.\\-]+)\"?\\s*# Target for CI/CD"],
       "depNameTemplate": "helm-image-tag",
       "datasourceTemplate": "docker"

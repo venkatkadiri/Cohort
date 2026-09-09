@@ -4,153 +4,153 @@
   "release-type": "simple",
   "include-component-in-tag": false,
   "packages": {
-    "apps/domain-hub": {
+    "hubs/domain-hub": {
       "package-name": "domain-hub",
       "component": "domain-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/domain-hub/helm/values.yaml"
+          "path": "hubs/domain-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/domain-hub/helm/Chart.yaml"
+          "path": "hubs/domain-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/booking-hub": {
+    "hubs/booking-hub": {
       "package-name": "booking-hub",
       "component": "booking-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/booking-hub/helm/values.yaml"
+          "path": "hubs/booking-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/booking-hub/helm/Chart.yaml"
+          "path": "hubs/booking-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/notification-hub": {
+    "hubs/notification-hub": {
       "package-name": "notification-hub",
       "component": "notification-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/notification-hub/helm/values.yaml"
+          "path": "hubs/notification-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/notification-hub/helm/Chart.yaml"
+          "path": "hubs/notification-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/search-hub": {
+    "hubs/search-hub": {
       "package-name": "search-hub",
       "component": "search-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/search-hub/helm/values.yaml"
+          "path": "hubs/search-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/search-hub/helm/Chart.yaml"
+          "path": "hubs/search-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/auth-hub": {
+    "hubs/auth-hub": {
       "package-name": "auth-hub",
       "component": "auth-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/auth-hub/helm/values.yaml"
+          "path": "hubs/auth-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/auth-hub/helm/Chart.yaml"
+          "path": "hubs/auth-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/video-hub": {
+    "hubs/video-hub": {
       "package-name": "video-hub",
       "component": "video-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/video-hub/helm/values.yaml"
+          "path": "hubs/video-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/video-hub/helm/Chart.yaml"
+          "path": "hubs/video-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/configuration-hub": {
+    "hubs/configuration-hub": {
       "package-name": "configuration-hub",
       "component": "configuration-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/configuration-hub/helm/values.yaml"
+          "path": "hubs/configuration-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/configuration-hub/helm/Chart.yaml"
+          "path": "hubs/configuration-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/leader-hub": {
+    "hubs/leader-hub": {
       "package-name": "leader-hub",
       "component": "leader-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/leader-hub/helm/values.yaml"
+          "path": "hubs/leader-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/leader-hub/helm/Chart.yaml"
+          "path": "hubs/leader-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/transaction-hub": {
+    "hubs/transaction-hub": {
       "package-name": "transaction-hub",
       "component": "transaction-hub",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/transaction-hub/helm/values.yaml"
+          "path": "hubs/transaction-hub/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/transaction-hub/helm/Chart.yaml"
+          "path": "hubs/transaction-hub/helm/Chart.yaml"
         }
       ]
     },
-    "apps/web": {
+    "hubs/web": {
       "package-name": "web",
       "component": "web",
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {
           "type": "generic",
-          "path": "apps/web/helm/values.yaml"
+          "path": "hubs/web/helm/values.yaml"
         },
         {
           "type": "generic",
-          "path": "apps/web/helm/Chart.yaml"
+          "path": "hubs/web/helm/Chart.yaml"
         }
       ]
     }

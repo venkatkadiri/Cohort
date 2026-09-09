@@ -54,8 +54,8 @@ Available Commands:
   helm:template:dev                 Render Helm manifests for dev-eu-west1 environment
   helm:template:stage               Render Helm manifests for stage environment
   helm:template:prod                Render Helm manifests for prod environment
-  tf <service> <command> [args...]  Run Terraform command in apps/<service>/terraform (init, validate, plan)
-  tf:init:all                       Initialize Terraform for all packages in apps/*/terraform
+  tf <service> <command> [args...]  Run Terraform command in hubs/<service>/terraform (init, validate, plan)
+  tf:init:all                       Initialize Terraform for all packages in hubs/*/terraform
   tf:validate:all                   Validate Terraform syntax across all packages
   run <command...>                  Execute an arbitrary command inside the utility container
   sh | bash                         Open an interactive shell inside the utility container
@@ -89,7 +89,7 @@ case "$CMD" in
     ;;
   helm:lint)
     echo "🔍 Linting Helm charts..."
-    run_in_container bash -c "helm lint apps/*/helm && helm lint helm/infrastructure/* && helm lint helm/cohort-platform"
+    run_in_container bash -c "helm lint hubs/*/helm && helm lint helm/infrastructure/* && helm lint helm/cohort-platform"
     ;;
   helm:dep:up)
     echo "📦 Updating Helm chart dependencies..."
@@ -113,7 +113,7 @@ case "$CMD" in
       exit 1
     fi
     shift 2 || true
-    TF_DIR="apps/${SERVICE}/terraform"
+    TF_DIR="hubs/${SERVICE}/terraform"
     if [ ! -d "${WORKSPACE_DIR}/${TF_DIR}" ]; then
       echo "❌ Error: Terraform directory '${TF_DIR}' does not exist."
       exit 1
@@ -123,11 +123,11 @@ case "$CMD" in
     ;;
   tf:init:all)
     echo "🌐 Initializing Terraform across all packages..."
-    for tf_dir in "${WORKSPACE_DIR}"/apps/*/terraform; do
+    for tf_dir in "${WORKSPACE_DIR}"/hubs/*/terraform; do
       if [ -d "$tf_dir" ]; then
         svc=$(basename "$(dirname "$tf_dir")")
-        echo "Initializing apps/$svc/terraform..."
-        run_in_container terraform -chdir="apps/$svc/terraform" init -input=false
+        echo "Initializing hubs/$svc/terraform..."
+        run_in_container terraform -chdir="hubs/$svc/terraform" init -input=false
       fi
     done
     echo "✅ All packages initialized."
@@ -136,10 +136,10 @@ case "$CMD" in
     echo "🔍 Validating Terraform configurations across all packages..."
     run_in_container bash -c '
       failed=0
-      for tf_dir in apps/*/terraform; do
+      for tf_dir in hubs/*/terraform; do
         if [ -d "$tf_dir" ]; then
           svc=$(basename "$(dirname "$tf_dir")")
-          echo -n "Validating apps/$svc/terraform... "
+          echo -n "Validating hubs/$svc/terraform... "
           if terraform -chdir="$tf_dir" validate >/dev/null 2>&1; then
             echo "✅ VALID"
           else

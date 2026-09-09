@@ -17,31 +17,31 @@ dependencies:
     repository: "file://../infrastructure/elk"
   - name: domain-hub
     version: 1.0.0
-    repository: "file://../../apps/domain-hub/helm"
+    repository: "file://../../hubs/domain-hub/helm"
   - name: booking-hub
     version: 1.0.0
-    repository: "file://../../apps/booking-hub/helm"
+    repository: "file://../../hubs/booking-hub/helm"
   - name: notification-hub
     version: 1.0.0
-    repository: "file://../../apps/notification-hub/helm"
+    repository: "file://../../hubs/notification-hub/helm"
   - name: search-hub
     version: 1.0.0
-    repository: "file://../../apps/search-hub/helm"
+    repository: "file://../../hubs/search-hub/helm"
   - name: auth-hub
     version: 1.0.0
-    repository: "file://../../apps/auth-hub/helm"
+    repository: "file://../../hubs/auth-hub/helm"
   - name: video-hub
     version: 1.0.0
-    repository: "file://../../apps/video-hub/helm"
+    repository: "file://../../hubs/video-hub/helm"
   - name: configuration-hub
     version: 1.0.0
-    repository: "file://../../apps/configuration-hub/helm"
+    repository: "file://../../hubs/configuration-hub/helm"
   - name: web
     version: 1.0.0
-    repository: "file://../../apps/web/helm"
+    repository: "file://../../hubs/web/helm"
   - name: leader-hub
     version: 1.0.0
-    repository: "file://../../apps/leader-hub/helm"
+    repository: "file://../../hubs/leader-hub/helm"
   - name: transaction-hub
     version: 1.0.0
-    repository: "file://../../apps/transaction-hub/helm"
+    repository: "file://../../hubs/transaction-hub/helm"

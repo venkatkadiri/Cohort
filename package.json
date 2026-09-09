@@ -41,7 +41,7 @@
     "k8s:keda": "kubectl apply -k k8s/base/keda",
     "k8s:keda:install": "kubectl apply --server-side -f https://github.com/kedacore/keda/releases/download/v2.13.0/keda-2.13.0.yaml",
     "k8s:diff": "kubectl diff -k k8s/overlays/dev",
-    "helm:lint": "helm lint apps/*/helm && helm lint helm/infrastructure/* && helm lint helm/cohort-platform",
+    "helm:lint": "helm lint hubs/*/helm && helm lint helm/infrastructure/* && helm lint helm/cohort-platform",
     "helm:template:dev": "helm template cohort-platform ./helm/cohort-platform -f ./helm/cohort-platform/values-dev-eu-west1.yaml",
     "helm:template:stage": "helm template cohort-platform ./helm/cohort-platform -f ./helm/cohort-platform/values-stage.yaml",
     "helm:template:prod": "helm template cohort-platform ./helm/cohort-platform -f ./helm/cohort-platform/values-prod.yaml",

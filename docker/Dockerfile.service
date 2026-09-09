@@ -18,7 +18,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 
 # Copy shared observability and service source
 COPY observability ./observability
-COPY apps/${SERVICE_NAME} ./apps/${SERVICE_NAME}
+COPY hubs/${SERVICE_NAME} ./hubs/${SERVICE_NAME}
 
 # Install dependencies and build
 RUN pnpm --filter @cohort/${SERVICE_NAME}... install --frozen-lockfile
@@ -37,10 +37,10 @@ WORKDIR /app
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nodejs
 
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${SERVICE_NAME}/package.json ./package.json
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${SERVICE_NAME}/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${SERVICE_NAME}/package.json ./package.json
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${SERVICE_NAME}/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nodejs:nodejs /app/apps/${SERVICE_NAME}/node_modules ./apps/${SERVICE_NAME}/node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/hubs/${SERVICE_NAME}/node_modules ./hubs/${SERVICE_NAME}/node_modules
 
 USER nodejs
 
